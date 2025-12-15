@@ -597,7 +597,7 @@ const FIXED_HERO_THEME = {
 // --- Awards Logic ---
 async function loadAwards() {
   try {
-    const response = await fetch('awards.json');
+    const response = await fetch('awards.json?v=' + AppConfig.VERSION);
     if (!response.ok) return; // Silent fail if no server
     const data = await response.json();
 
@@ -806,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadMenu() {
   try {
-    const response = await fetch('menu.json');
+    const response = await fetch('menu.json?v=' + AppConfig.VERSION);
     if (!response.ok) return;
     const items = await response.json();
 

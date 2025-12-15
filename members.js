@@ -39,7 +39,7 @@ function setupMenu() {
 
 async function loadMenu() {
   try {
-    const response = await fetch('menu.json');
+    const response = await fetch('menu.json?v=' + AppConfig.VERSION);
     if (!response.ok) return;
     const items = await response.json();
 
@@ -84,7 +84,7 @@ async function renderMembersPage() {
 
 async function fetchMembers() {
   // If running in some environments, path might need ./
-  const response = await fetch('./members.json');
+  const response = await fetch('./members.json?v=' + AppConfig.VERSION);
   if (!response.ok) throw new Error('members.json not found');
   return response.json();
 }
