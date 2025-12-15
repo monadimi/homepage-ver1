@@ -636,7 +636,7 @@ async function loadAwards() {
     const listContainer = document.getElementById('awards-list');
     if (listContainer) {
       listContainer.innerHTML = '';
-      const listData = data.slice(8);
+      const listData = data; // Show all items
 
       if (listData.length === 0) {
         listContainer.style.display = 'none';

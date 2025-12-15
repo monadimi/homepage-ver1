@@ -4,27 +4,15 @@
       "link": "#"
   },
   {
-      "name": "Mission",
-      "link": "#mission"
-  },
-  {
-      "name": "What is MONAD?",
-      "link": "#what-is-monad"
-  },
-  {
       "name": "Awards",
       "link": "#awards-section"
-  },
-  {
-      "name": "Careers",
-      "link": "#"
   },
   {
       "name": "Members",
       "link": "member.html"
   },
   {
-      "name": "Contact",
-      "link": "#"
+    "name": "Projects",
+    "link": "projects.html"
   }
 ]

@@ -1,126 +1,27 @@
 [
     {
-        "title": "Site of the Day",
-        "year": "2024",
-        "org": "Awwwards"
-    },
-    {
-        "title": "Developer Award",
-        "year": "2024",
-        "org": "Awwwards"
-    },
-    {
-        "title": "FWA of the Month",
-        "year": "2023",
-        "org": "FWA"
-    },
-    {
-        "title": "Best UI Design",
-        "year": "2023",
-        "org": "CSS Design Awards"
-    },
-    {
-        "title": "UX Innovation",
+        "title": "SW 고등 창의과학톤 대상",
         "year": "2025",
-        "org": "Interaction Design Assoc."
+        "org": "과학기술정보통신부장관상"
     },
     {
-        "title": "Creative Excellence",
-        "year": "2024",
-        "org": "Webby Awards"
-    },
-    {
-        "title": "Digital Craft",
-        "year": "2023",
-        "org": "Cannes Lions"
-    },
-    {
-        "title": "Best in Show",
-        "year": "2024",
-        "org": "New York Festivals"
-    },
-    {
-        "title": "Rising Star",
+        "title": "SW/AI 미래채움 고교 챌린지 창의상",
         "year": "2025",
-        "org": "Design Week"
+        "org": "럭스로보 대표상"
     },
     {
-        "title": "Community Choice",
-        "year": "2024",
-        "org": "Product Hunt"
-    },
-    {
-        "title": "Innovation in AI",
+        "title": "AI SoftwarePlay 용인 우수상",
         "year": "2025",
-        "org": "TechCrunch Disrupt"
+        "org": "경희대 AISW 교육단장상"
     },
     {
-        "title": "Best Interactive",
-        "year": "2023",
-        "org": "The Lovie Awards"
+        "title": "2025 한국코드페어 해커톤 동상",
+        "year": "2025",
+        "org": "후원사상"
     },
     {
-      "title": "Site of the Day",
-      "year": "2024",
-      "org": "Awwwards"
-  },
-  {
-      "title": "Developer Award",
-      "year": "2024",
-      "org": "Awwwards"
-  },
-  {
-      "title": "FWA of the Month",
-      "year": "2023",
-      "org": "FWA"
-  },
-  {
-      "title": "Best UI Design",
-      "year": "2023",
-      "org": "CSS Design Awards"
-  },
-  {
-      "title": "UX Innovation",
-      "year": "2025",
-      "org": "Interaction Design Assoc."
-  },
-  {
-      "title": "Creative Excellence",
-      "year": "2024",
-      "org": "Webby Awards"
-  },
-  {
-      "title": "Digital Craft",
-      "year": "2023",
-      "org": "Cannes Lions"
-  },
-  {
-      "title": "Best in Show",
-      "year": "2024",
-      "org": "New York Festivals"
-  },
-  {
-      "title": "Rising Star",
-      "year": "2025",
-      "org": "Design Week",
-      "description": "Recognized for breaking boundaries in digital aesthetics."
-  },
-  {
-      "title": "Community Choice",
-      "year": "2024",
-      "org": "Product Hunt",
-      "description": "Voted by the community as the most innovative landing page of the year."
-  },
-  {
-      "title": "Innovation in AI",
-      "year": "2025",
-      "org": "TechCrunch Disrupt",
-      "description": "Pioneering use of generative noise algorithms in web design."
-  },
-  {
-      "title": "Best Interactive",
-      "year": "2023",
-      "org": "The Lovie Awards",
-      "description": "Awarded for exceptional user engagement and interactive storytelling."
-  }
+        "title": "2025 대한민국 소프트웨어 공모전 동상",
+        "year": "2025",
+        "org": "대표이사상"
+    }
 ]
