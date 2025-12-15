@@ -1,0 +1,42 @@
+[
+  {
+    "cohort": "0기",
+    "generalCohort": "24기",
+    "department": "웹프로그래밍과",
+    "name": "김단아",
+    "description": "K.D.A",
+    "image": "https://placehold.co/160x160?text=DA"
+  },
+  {
+    "cohort": "0기",
+    "generalCohort": "24기",
+    "department": "웹프로그래밍과",
+    "name": "제시원",
+    "description": "시원하다",
+    "image": "https://placehold.co/160x160?text=SW"
+  },
+  {
+    "cohort": "0기",
+    "generalCohort": "24기",
+    "department": "웹프로그래밍과",
+    "name": "조수아",
+    "description": "하스켈조아요",
+    "image": "https://placehold.co/160x160?text=XY"
+  },
+  {
+    "cohort": "0기",
+    "generalCohort": "24기",
+    "department": "웹프로그래밍과",
+    "name": "한준혁",
+    "description": "보노보노",
+    "image": "https://placehold.co/160x160?text=JH"
+  },
+  {
+    "cohort": "0기",
+    "generalCohort": "24기",
+    "department": "웹프로그래밍과",
+    "name": "황정빈",
+    "description": "집가고싶다.",
+    "image": "https://placehold.co/160x160?text=JB"
+  }
+]
