@@ -796,6 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadMenu(); // Ensure menu loads
   loadAwards(); // Ensure awards load
   initTextEffects();
+  initFooterAnimation();
 
   // Marquee logic
   const track = document.querySelector('.marquee-track');
@@ -872,3 +873,29 @@ function loop() {
 
 // Start
 init();
+
+// --- Footer Animation ---
+function initFooterAnimation() {
+  const footerText = document.getElementById('footer-text');
+  if (!footerText) return;
+
+  const words = ["MONAD LEADS THE FUTURE", "Ⓒ MONAD 2025~", "MONAD IS IN DIMIGO", "FOR HUMANITY", "JOIN MONAD"];
+  let currentIndex = 0;
+
+  setInterval(() => {
+    // Fade Out
+    footerText.style.opacity = '0';
+    footerText.style.transform = 'translateY(10px) scale(0.95)'; // Subtle drop effect
+
+    setTimeout(() => {
+      // Change Text
+      currentIndex = (currentIndex + 1) % words.length;
+      footerText.textContent = words[currentIndex];
+
+      // Fade In
+      footerText.style.opacity = '1';
+      footerText.style.transform = 'translateY(0) scale(1)';
+    }, 500); // Wait for transition
+
+  }, 2500); // Cycle every 2.5s
+}
