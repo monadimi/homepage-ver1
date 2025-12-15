@@ -954,6 +954,67 @@ canvas {
   position: relative;
 }
 
+/* 
+   Decorative Images & Glitch 
+*/
+#mission,
+#what-is-monad,
+#awards-section {
+  position: relative;
+  overflow: hidden;
+  /* Prevent overflow */
+}
+
+.deco-img {
+  position: absolute;
+  pointer-events: none;
+  filter: grayscale(100%) contrast(1.2) brightness(0.6) !important;
+  /* Force B&W and Dim */
+  mix-blend-mode: hard-light;
+  opacity: 0.25;
+  z-index: 0;
+}
+
+.atom-img {
+  top: 0%;
+  right: -15%;
+  width: 60vw;
+  max-width: 700px;
+  transform: rotate(10deg);
+  animation: float 8s ease-in-out infinite, glitch-anim 5s infinite;
+}
+
+.satellite-img {
+  top: 20%;
+  left: -10%;
+  width: 50vw;
+  max-width: 600px;
+  transform: rotate(-15deg);
+  animation: float 7s ease-in-out infinite reverse, glitch-anim 4s infinite 1s;
+}
+
+.folder-img {
+  bottom: -10%;
+  right: -5%;
+  width: 40vw;
+  max-width: 500px;
+  transform: rotate(20deg);
+  opacity: 0.2 !important;
+  /* Restore brightness */
+  filter: grayscale(100%) contrast(1.2) !important;
+  /* Standard B&W */
+  animation: float 9s ease-in-out infinite, glitch-anim 6s infinite 2s;
+}
+
+.marquee-icon {
+  height: 40px;
+  /* Match text size approx */
+  width: auto;
+  vertical-align: middle;
+  margin: 0 20px;
+  filter: grayscale(100%) invert(1);
+}
+
 .project-overlay {
   position: absolute;
   top: 0;

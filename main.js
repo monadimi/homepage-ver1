@@ -641,7 +641,7 @@ async function loadAwards() {
       if (listData.length === 0) {
         listContainer.style.display = 'none';
       } else {
-        listContainer.style.display = 'flex'; // Changed from grid to flex
+        listContainer.style.display = 'flex';
         listData.forEach(award => {
           const card = document.createElement('div');
           card.classList.add('award-card');
@@ -652,9 +652,7 @@ async function loadAwards() {
                             <span>${award.org} • ${award.year}</span>
                         </div>
                      `;
-          // Mobile interaction: Click to expand
           card.addEventListener('click', () => {
-            // Toggle active state
             card.classList.toggle('active');
           });
           listContainer.appendChild(card);
@@ -666,6 +664,145 @@ async function loadAwards() {
     console.warn("Could not load awards (likely CORS):", e);
   }
 }
+
+// --- Text Effects (Hacker & Typewriter) ---
+function initTextEffects() {
+  const titles = document.querySelectorAll('.mission-content h2');
+  const paragraphs = document.querySelectorAll('.mission-content p');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const target = entry.target;
+        if (target.tagName.toLowerCase() === 'h2') {
+          animateHackerText(target);
+        } else if (target.tagName.toLowerCase() === 'p') {
+          animateTypewriter(target);
+        }
+        observer.unobserve(target); // Run ONCE
+      }
+    });
+  }, { threshold: 0.5 });
+
+  [...titles, ...paragraphs].forEach(t => {
+    t.dataset.originalText = t.innerText;
+    // For typewriter, hide text initially visually or keep it? 
+    // Usually hide it, but to prevent layout shift, maybe set visibility: hidden? 
+    // Or just set opacity 0 then animate? 
+    // Better: set textContent empty but keep height? Hard.
+    // Easiest: Set opacity 0 in CSS then in animate set opacity 1. 
+    // But animate updates innerText.
+    // I will explicitly set it to empty string here IF it's a paragraph.
+    if (t.tagName.toLowerCase() === 'p') {
+      t.style.minHeight = t.offsetHeight + 'px'; // Reserve height
+      t.innerText = '';
+    }
+    observer.observe(t);
+  });
+
+  // Hacker Effect (Context-Aware) for Titles
+  function animateHackerText(element) {
+    const originalText = element.dataset.originalText;
+    const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const LOWER = "abcdefghijklmnopqrstuvwxyz";
+    const DIGITS = "0123456789";
+    const SYMBOLS = "!@#$%^&*()_+~[]{}-=";
+
+    let iteration = 0;
+
+    // Clear existing
+    clearInterval(element.dataset.intervalId);
+
+    let interval = setInterval(() => {
+      element.innerText = originalText
+        .split("")
+        .map((letter, index) => {
+          if (index < iteration) return originalText[index];
+          if (letter === " " || letter === "\n") return letter;
+
+          if (UPPER.includes(letter)) return UPPER[Math.floor(Math.random() * UPPER.length)];
+          if (LOWER.includes(letter)) return LOWER[Math.floor(Math.random() * LOWER.length)];
+          if (DIGITS.includes(letter)) return DIGITS[Math.floor(Math.random() * DIGITS.length)];
+          return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+        })
+        .join("");
+
+      if (iteration >= originalText.length) clearInterval(interval);
+      iteration += 1 / 2;
+    }, 30);
+
+    element.dataset.intervalId = interval;
+  }
+
+  // Typewriter Effect (Jaso Decomp) for Paragraphs
+  function animateTypewriter(element) {
+    const originalText = element.dataset.originalText;
+    let index = 0;
+    let currentText = "";
+
+    // Simple recursive typer
+    function type() {
+      if (index >= originalText.length) return;
+
+      const char = originalText[index];
+      const code = char.charCodeAt(0);
+
+      // Check if Hangul (AC00-D7A3)
+      if (code >= 0xAC00 && code <= 0xD7A3) {
+        const base = code - 0xAC00;
+        const choIdx = Math.floor(base / 588);
+        const jungIdx = Math.floor((base - (choIdx * 588)) / 28);
+        const jongIdx = base % 28;
+
+        // Recompose steps
+        const step2 = String.fromCharCode(0xAC00 + (choIdx * 588) + (jungIdx * 28)); // Cho + Jung
+
+        const steps = [];
+        steps.push(step2);
+        if (jongIdx > 0) {
+          steps.push(String.fromCharCode(0xAC00 + (choIdx * 588) + (jungIdx * 28) + jongIdx));
+        }
+
+        let stepStep = 0;
+        let jasoInterval = setInterval(() => {
+          if (stepStep >= steps.length) {
+            clearInterval(jasoInterval);
+            currentText += char;
+            element.innerText = currentText;
+            index++;
+            setTimeout(type, 5); // 3x Faster char delay (5ms)
+          } else {
+            element.innerText = currentText + steps[stepStep];
+            stepStep++;
+          }
+        }, 7); // 3x Faster Jaso writing speed (7ms)
+
+      } else {
+        // Non-Hangul
+        currentText += char;
+        element.innerText = currentText;
+        index++;
+        setTimeout(type, 5); // 3x Faster English typing speed (5ms)
+      }
+    }
+
+    type();
+  }
+}
+
+// Call it
+document.addEventListener('DOMContentLoaded', () => {
+  // ... other inits ...
+  loadMenu(); // Ensure menu loads
+  loadAwards(); // Ensure awards load
+  initTextEffects();
+
+  // Marquee logic
+  const track = document.querySelector('.marquee-track');
+  if (track) {
+    // Setup scrolling
+  }
+});
 
 async function loadMenu() {
   try {
