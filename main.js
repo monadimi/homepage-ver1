@@ -279,7 +279,26 @@ function init() {
 
   // Start
   // setTheme removed
-  loadMenu();
+  loadMenu().then(() => {
+    // Setup Mobile Menu Logic after menu loads (or concurrently, elements exist)
+    const toggleBtn = document.getElementById('menu-toggle');
+    const nav = document.getElementById('main-nav');
+
+    if (toggleBtn && nav) {
+      toggleBtn.addEventListener('click', () => {
+        nav.classList.toggle('active');
+        toggleBtn.classList.toggle('active');
+      });
+
+      // Close on link click
+      nav.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          nav.classList.remove('active');
+          toggleBtn.classList.remove('active');
+        });
+      });
+    }
+  });
   loadAwards();
   loop();
 }
@@ -292,9 +311,16 @@ function resize() {
   width = window.innerWidth;
   height = window.innerHeight;
 
-  // Calculate Visual Scale based on 1920px width baseline
-  // Clamp to minimum 0.6 to prevent dots disappearing on very small screens
-  visualScale = Math.max(width / 1920, 0.6);
+  // Calculate Visual Scale
+  // Mobile fix: "MONAD" text width needs to fit or be reasonably cropped.
+  // 5 chars approx.
+  // Let's rely on a more linear scale for mobile.
+  if (width < 600) {
+    // Drastically reduce for mobile to prevent overflow
+    visualScale = width / 1500;
+  } else {
+    visualScale = Math.max(width / 1920, 0.5);
+  }
 
   // Physical size
   canvas.width = width * dpr;
@@ -453,6 +479,18 @@ window.addEventListener('scroll', () => {
 
     // Simple Scroll Link
     marqueeTrack.style.transform = `translateX(${-scrollY * speed}px)`;
+  }
+
+  // Hide Scroll Prompt
+  const prompt = document.getElementById('scroll-prompt');
+  if (prompt) {
+    if (scrollY > 50) {
+      prompt.style.opacity = '0';
+      prompt.style.transform = 'translate(-50%, 20px)'; // Slide down slightly
+    } else {
+      prompt.style.opacity = '1';
+      prompt.style.transform = 'translate(-50%, 0)';
+    }
   }
 
   // --- Dynamic Color Inversion ---
@@ -614,6 +652,11 @@ async function loadAwards() {
                             <span>${award.org} • ${award.year}</span>
                         </div>
                      `;
+          // Mobile interaction: Click to expand
+          card.addEventListener('click', () => {
+            // Toggle active state
+            card.classList.toggle('active');
+          });
           listContainer.appendChild(card);
         });
       }

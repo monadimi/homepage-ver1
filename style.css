@@ -14,7 +14,7 @@ body {
   background: var(--bg-color);
   color: var(--text-color);
   overflow-x: hidden;
-  /* Enable vertical scroll */
+  /* Prevent horizontal scroll */
   font-family: 'Space Grotesk', sans-serif;
   transition: background 0.3s, color 0.3s;
   scroll-behavior: smooth;
@@ -29,8 +29,8 @@ body {
   height: 60px;
   z-index: 1000;
   background: var(--header-bg);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
@@ -45,15 +45,218 @@ body {
 
 #main-nav a {
   text-decoration: none;
-  font-size: 14px;
   font-weight: 500;
-  color: var(--text-color);
-  opacity: 0.8;
-  transition: opacity 0.2s;
+  font-size: 16px;
+  color: inherit;
+  transition: opacity 0.3s;
 }
 
 #main-nav a:hover {
-  opacity: 1;
+  opacity: 0.6;
+}
+
+/* Hamburger Menu (Default Hidden) */
+#menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 1002;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#menu-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: var(--text-color);
+  /* Theme aware */
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  #menu-toggle {
+    display: flex;
+  }
+
+  /* Mobile Nav Overlay */
+  #main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: var(--header-bg);
+    /* Use blur/opacity */
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    transform: translateY(-100%);
+    transition: transform 0.4s ease-in-out;
+    visibility: hidden;
+  }
+
+  #main-nav.active {
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  #main-nav a {
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  /* Hamburger Animation */
+  #menu-toggle.active span:nth-child(1) {
+    transform: translateY(4px) rotate(45deg);
+    /* center is roughly +4px diff if gap is 6 */
+  }
+
+  #menu-toggle.active span:nth-child(2) {
+    transform: translateY(-4px) rotate(-45deg);
+  }
+
+  /* Section Adjustments */
+  #mission,
+  #what-is-monad {
+    padding: 60px 20px;
+    /* Reduced vertical padding */
+    min-height: 60vh;
+  }
+
+  .mission-content h2 {
+    font-size: 28px;
+    /* Smaller */
+    margin-bottom: 24px;
+  }
+
+  .mission-content p {
+    font-size: 15px;
+    /* Smaller */
+    padding: 0;
+  }
+
+  /* Marquee */
+  .marquee-track span {
+    font-size: 16px;
+    /* Smaller */
+  }
+
+  #recruit-marquee {
+    padding: 10px 0;
+  }
+
+  /* Awards Orbit Scale */
+  #awards-orbit {
+    width: 280px;
+    /* Smaller */
+    height: 280px;
+  }
+
+  /* Award Bubble Scale */
+  .award-bubble {
+    width: 80px;
+    /* Smaller */
+    height: 80px;
+    font-size: 10px;
+  }
+
+  .award-bubble strong {
+    font-size: 12px;
+  }
+
+  /* Trophy */
+  #trophy {
+    font-size: 32px;
+  }
+
+  /* Awards List Mobile */
+  /* Remove Hover Effect on mobile if possible to avoid sticking? */
+  /* Fix Card Widths */
+  .award-card {
+    width: 100%;
+    box-sizing: border-box;
+    /* Ensure padding doesn't overflow */
+    padding: 16px 20px;
+    border-radius: 24px;
+  }
+
+  .award-card strong {
+    font-size: 16px;
+  }
+
+  /* Member Grid */
+  .member-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    /* Single column, prevents overflow */
+    gap: 16px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .member-card {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 16px;
+    width: auto;
+    /* Let grid control width */
+    min-width: 0;
+    /* Allow shrinking below content size if needed */
+    max-width: 100%;
+    /* Strict containment */
+    margin: 0;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    /* Prevent long text overflow */
+    word-break: break-word;
+  }
+
+  .member-avatar {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto;
+  }
+
+  .member-hero h1 {
+    font-size: 32px;
+  }
+
+  .member-hero .lede {
+    font-size: 15px;
+  }
+
+  .cohort-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  /* Enhance Drawer Blur */
+  #main-nav {
+    background: rgba(0, 0, 0, 0.4) !important;
+    /* More transparent */
+    backdrop-filter: blur(30px) !important;
+    /* Stronger blur */
+    -webkit-backdrop-filter: blur(30px) !important;
+  }
+}
+
+/* Placeholder for .award-card styles, assuming they will be defined elsewhere */
+/* This rule is added based on the instruction "Add .award-card.active .award-details style (copy hover state)" */
+/* As no hover state for .award-card .award-details was provided in the document, */
+/* a placeholder is used. Please define the actual hover state properties for .award-card .award-details. */
+.award-card.active .award-details {
+  /* Example: opacity: 1; transform: translateY(0); */
+  /* Add actual hover state properties here when available */
 }
 
 canvas {
@@ -75,6 +278,69 @@ canvas {
   width: 100%;
   position: relative;
   z-index: 1;
+}
+
+/* Scroll Prompt */
+#scroll-prompt {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(20, 20, 20, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  opacity: 1;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+}
+
+#scroll-prompt span {
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.scroll-icon {
+  width: 20px;
+  height: 32px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  position: relative;
+}
+
+.scroll-icon::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 6px;
+  background: white;
+  border-radius: 2px;
+  animation: scroll-bob 1.5s infinite;
+}
+
+@keyframes scroll-bob {
+  0% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(10px);
+    opacity: 0;
+  }
 }
 
 /* Marquee Section */
@@ -158,6 +424,7 @@ canvas {
   gap: 16px;
   padding: 12px 24px;
   background: rgba(20, 20, 20, 0.6);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-radius: 50px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -228,6 +495,24 @@ canvas {
   padding: 100px 32px 120px;
   box-sizing: border-box;
 }
+
+@media (max-width: 768px) {
+  #members-page {
+    padding: 80px 16px 100px;
+    width: 100%;
+    overflow-x: hidden;
+    /* Ensure section itself doesn't scroll */
+  }
+
+  /* Ensure container doesn't overflow */
+  #members-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+
 
 .member-hero {
   max-width: 900px;
@@ -428,8 +713,8 @@ canvas {
   left: 50%;
   /* Default center, JS will offset */
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   /* Circle bubbles look better in orbit */
@@ -501,7 +786,8 @@ canvas {
   transition: all 0.4s ease;
 }
 
-.award-card:hover .award-details {
+.award-card:hover .award-details,
+.award-card.active .award-details {
   max-height: 100px;
   /* Arbitrary limit, needs to be enough for text */
   opacity: 1;
@@ -549,5 +835,58 @@ canvas {
   */
   0% {
     transform: translate(-50%, -50%) rotate(0deg);
+  }
+}
+
+/* 
+   Heavy-handed Mobile Overrides 
+   Placed at the end to strictly override any previous desktop definitions 
+*/
+@media (max-width: 768px) {
+  .member-hero {
+    padding: 0 16px;
+  }
+
+  .member-hero h1 {
+    font-size: 32px;
+  }
+
+  .member-hero .lede {
+    font-size: 15px;
+  }
+
+  .member-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .member-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Explicitly center items (avatar) */
+    text-align: center;
+    padding: 20px 16px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .member-avatar {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 16px auto;
+    /* Force margin */
+    flex-shrink: 0;
+  }
+
+  .cohort-button {
+    padding: 10px 16px;
+    font-size: 14px;
   }
 }
