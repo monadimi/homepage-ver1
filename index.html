@@ -8,10 +8,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+  <header id="main-header">
+    <nav id="main-nav"></nav>
+  </header>
   <canvas id="dot-canvas"></canvas>
 
   <div class="spacer"></div>
@@ -23,18 +28,31 @@
     <button id="btn-close">✕</button>
   </div>
 
-  <button id="theme-prev" class="theme-nav">‹</button>
-  <button id="theme-next" class="theme-nav">›</button>
-
   <section id="mission">
     <div class="mission-content">
       <h2>Our Mission</h2>
       <p>
-        We believe in the power of code to shape reality.<br>
-        MONAD is not just a brand; it is a movement towards clarity, structure, and infinite potential.
+        인류의 발전을 위한 발걸음<br>
+        monad는 디미고 최고의 인재들이 모여 인류의 발전을 위해 기술과 IT를 탐구하고 변화를 이끌어내는 것을 목표로 합니다.
       </p>
     </div>
   </section>
+
+  <section id="what-is-monad">
+    <div class="mission-content">
+      <h2>What is MONAD?</h2>
+      <p>
+        monad는 양자, 로켓, 소프트웨어 등 첨단 기술을 탐구하고 이를 활용하여 내일을 변화시킵니다.
+      </p>
+    </div>
+  </section>
+
+  <section id="awards-section">
+    <div id="trophy">🏆</div>
+    <div id="awards-orbit"></div>
+  </section>
+
+  <section id="awards-list"></section>
 
   <script src="main.js"></script>
 </body>

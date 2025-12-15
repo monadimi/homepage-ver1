@@ -1,0 +1,126 @@
+[
+    {
+        "title": "Site of the Day",
+        "year": "2024",
+        "org": "Awwwards"
+    },
+    {
+        "title": "Developer Award",
+        "year": "2024",
+        "org": "Awwwards"
+    },
+    {
+        "title": "FWA of the Month",
+        "year": "2023",
+        "org": "FWA"
+    },
+    {
+        "title": "Best UI Design",
+        "year": "2023",
+        "org": "CSS Design Awards"
+    },
+    {
+        "title": "UX Innovation",
+        "year": "2025",
+        "org": "Interaction Design Assoc."
+    },
+    {
+        "title": "Creative Excellence",
+        "year": "2024",
+        "org": "Webby Awards"
+    },
+    {
+        "title": "Digital Craft",
+        "year": "2023",
+        "org": "Cannes Lions"
+    },
+    {
+        "title": "Best in Show",
+        "year": "2024",
+        "org": "New York Festivals"
+    },
+    {
+        "title": "Rising Star",
+        "year": "2025",
+        "org": "Design Week"
+    },
+    {
+        "title": "Community Choice",
+        "year": "2024",
+        "org": "Product Hunt"
+    },
+    {
+        "title": "Innovation in AI",
+        "year": "2025",
+        "org": "TechCrunch Disrupt"
+    },
+    {
+        "title": "Best Interactive",
+        "year": "2023",
+        "org": "The Lovie Awards"
+    },
+    {
+      "title": "Site of the Day",
+      "year": "2024",
+      "org": "Awwwards"
+  },
+  {
+      "title": "Developer Award",
+      "year": "2024",
+      "org": "Awwwards"
+  },
+  {
+      "title": "FWA of the Month",
+      "year": "2023",
+      "org": "FWA"
+  },
+  {
+      "title": "Best UI Design",
+      "year": "2023",
+      "org": "CSS Design Awards"
+  },
+  {
+      "title": "UX Innovation",
+      "year": "2025",
+      "org": "Interaction Design Assoc."
+  },
+  {
+      "title": "Creative Excellence",
+      "year": "2024",
+      "org": "Webby Awards"
+  },
+  {
+      "title": "Digital Craft",
+      "year": "2023",
+      "org": "Cannes Lions"
+  },
+  {
+      "title": "Best in Show",
+      "year": "2024",
+      "org": "New York Festivals"
+  },
+  {
+      "title": "Rising Star",
+      "year": "2025",
+      "org": "Design Week",
+      "description": "Recognized for breaking boundaries in digital aesthetics."
+  },
+  {
+      "title": "Community Choice",
+      "year": "2024",
+      "org": "Product Hunt",
+      "description": "Voted by the community as the most innovative landing page of the year."
+  },
+  {
+      "title": "Innovation in AI",
+      "year": "2025",
+      "org": "TechCrunch Disrupt",
+      "description": "Pioneering use of generative noise algorithms in web design."
+  },
+  {
+      "title": "Best Interactive",
+      "year": "2023",
+      "org": "The Lovie Awards",
+      "description": "Awarded for exceptional user engagement and interactive storytelling."
+  }
+]

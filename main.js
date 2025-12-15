@@ -14,7 +14,7 @@ const CONFIG = {
   MAX_RADIUS: 8,    // Max radius on hover
   TEXT: "MONAD",
   FONT_SIZE: 400,   // px - Doubled size
-  FONT_FAMILY: "Inter, sans-serif",
+  FONT_FAMILY: "Space Grotesk, sans-serif",
   NOISE_SCALE: 0.005,
   STAGES: {
     INIT: 0,
@@ -29,9 +29,9 @@ const CONFIG = {
 };
 
 const THEMES = [
-  { name: 'dark', bg: '#000000', dot: '#ffffff', shape: 'circle' },
-  { name: 'light', bg: '#ffffff', dot: '#000000', shape: 'circle' },
-  { name: 'lcd', bg: '#bad24c', dot: '#94ab26', shape: 'square' }
+  { name: 'dark', bg: '#000000', dot: '#ffffff', shape: 'circle', missionBg: '#000000', missionText: '#ffffff', headerBg: 'rgba(0, 0, 0, 0.7)' },
+  { name: 'light', bg: '#ffffff', dot: '#000000', shape: 'circle', missionBg: '#ffffff', missionText: '#000000', headerBg: 'rgba(255, 255, 255, 0.7)' },
+  { name: 'lcd', bg: '#bad24c', dot: '#94ab26', shape: 'square', missionBg: '#bad24c', missionText: '#3b421b', headerBg: 'rgba(186, 210, 76, 0.8)' }
 ];
 let currentThemeIndex = 0;
 
@@ -254,40 +254,33 @@ class Dot {
   draw(ctx) {
     if (this.opacity <= 0.01) return;
 
-    const theme = THEMES[currentThemeIndex];
-    ctx.fillStyle = theme.name === 'lcd'
-      ? `rgba(148, 171, 38, ${this.opacity})` // LCD color hardcoded-ish or we parse hex to rbga?
-      // Simple hack: if theme is light, black with opacity. If dark, white with opacity.
-      // For LCD, use dot color. But we need RGBA for opacity.
-      // Let's assume hex for now and just set globalAlpha?
-      // Better: Set globalAlpha -> fillStyle -> fill
-      : (theme.name === 'light' ? `rgba(0, 0, 0, ${this.opacity})` : `rgba(255, 255, 255, ${this.opacity})`);
+    // Fixed Dark Theme for Hero
+    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
 
     // Better color handling:
     // We already use opacity property.
     ctx.globalAlpha = this.opacity;
-    ctx.fillStyle = theme.dot;
+    ctx.fillStyle = FIXED_HERO_THEME.dot;
 
     ctx.beginPath();
-    if (theme.shape === 'square') {
-      const size = this.radius * 2;
-      ctx.fillRect(this.x - this.radius, this.y - this.radius, size, size);
-    } else {
-      ctx.arc(this.x, this.y, Math.abs(this.radius), 0, Math.PI * 2);
-      ctx.fill();
-    }
+    ctx.arc(this.x, this.y, Math.abs(this.radius), 0, Math.PI * 2);
+    ctx.fill();
+
     ctx.globalAlpha = 1.0; // Reset
   }
 }
-
-// --- Initialization ---
-
+// ...
+// ...
+// ... Init changes:
 function init() {
   resize();
   createGrid();
   mapText();
 
-  // Start Loop
+  // Start
+  // setTheme removed
+  loadMenu();
+  loadAwards();
   loop();
 }
 
@@ -419,6 +412,23 @@ window.addEventListener('scroll', () => {
     // User asked for "evaporation", so game should probably pause or exit.
     // Let's keep it simple.
   }
+
+  // --- Orbit Rotation Linked to Scroll ---
+  const orbitContainer = document.getElementById('awards-orbit');
+  if (orbitContainer) {
+    // Wrap in RAF for performance
+    requestAnimationFrame(() => {
+      // Rotation factor: 1px scroll = 0.2 deg rotation
+      const rotation = scrollY * 0.2;
+      orbitContainer.style.transform = `rotate(${rotation}deg)`;
+
+      const bubbles = orbitContainer.querySelectorAll('.award-bubble');
+      bubbles.forEach(bubble => {
+        // Maintain centering translate (-50%, -50%) AND apply counter rotation
+        bubble.style.transform = `translate(-50%, -50%) rotate(${-rotation}deg)`;
+      });
+    });
+  }
 });
 
 // --- Game Logic ---
@@ -503,29 +513,110 @@ btnReset.addEventListener('click', () => {
 btnClose.addEventListener('click', exitGameMode);
 
 // --- Theme Logic ---
-const btnPrev = document.getElementById('theme-prev');
-const btnNext = document.getElementById('theme-next');
+// --- Theme Logic (Refactored to Fixed Layout) ---
+// Hero is always Dark (0), Content is Light, Awards is Dark.
+// We only need to control the Canvas rendering style here.
+const FIXED_HERO_THEME = {
+  bg: '#000000',
+  dot: '#ffffff',
+  shape: 'circle'
+};
 
-function setTheme(index) {
-  currentThemeIndex = (index + THEMES.length) % THEMES.length;
-  const theme = THEMES[currentThemeIndex];
+// ... Removed manual theme switching ...
 
-  // Update Body BG
-  document.body.style.backgroundColor = theme.bg;
+// ...
+// Update draw() to use FIXED_HERO_THEME
+// ...
 
-  // Update nav button colors for visibility logic (simple inversion)
-  const navColor = theme.name === 'light' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)';
-  const navHover = theme.name === 'light' ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)';
 
-  [btnPrev, btnNext].forEach(btn => {
-    btn.style.color = navColor;
-    btn.onmouseenter = () => btn.style.color = navHover;
-    btn.onmouseleave = () => btn.style.color = navColor;
-  });
+// --- Awards Logic ---
+async function loadAwards() {
+  try {
+    const response = await fetch('awards.json');
+    if (!response.ok) return; // Silent fail if no server
+    const data = await response.json();
+
+    // --- Orbit Render (Max 8) ---
+    const orbitContainer = document.getElementById('awards-orbit');
+    if (orbitContainer) {
+      orbitContainer.innerHTML = '';
+      const orbitData = data.slice(0, 8);
+      const total = orbitData.length;
+      const radius = 300; // px
+
+      orbitData.forEach((award, index) => {
+        const bubble = document.createElement('div');
+        bubble.classList.add('award-bubble');
+        // Ensure text color is inherited correctly or explicit if needed 
+        // (style.css handled inheritance)
+        bubble.innerHTML = `
+                    <strong>${award.title}</strong>
+                    <span>${award.org} • ${award.year}</span>
+                `;
+
+        const angle = (index / total) * Math.PI * 2;
+        const x = radius * Math.cos(angle);
+        const y = radius * Math.sin(angle);
+
+        bubble.style.left = '50%';
+        bubble.style.top = '50%';
+        bubble.style.marginLeft = `${x}px`;
+        bubble.style.marginTop = `${y}px`;
+
+        orbitContainer.appendChild(bubble);
+      });
+    }
+
+    // --- List Render (The Rest) ---
+    const listContainer = document.getElementById('awards-list');
+    if (listContainer) {
+      listContainer.innerHTML = '';
+      const listData = data.slice(8);
+
+      if (listData.length === 0) {
+        listContainer.style.display = 'none';
+      } else {
+        listContainer.style.display = 'flex'; // Changed from grid to flex
+        listData.forEach(award => {
+          const card = document.createElement('div');
+          card.classList.add('award-card');
+          card.innerHTML = `
+                        <strong>${award.title}</strong>
+                        <div class="award-details">
+                            <p>${award.description || "Awarded for excellence in digital craft."}</p>
+                            <span>${award.org} • ${award.year}</span>
+                        </div>
+                     `;
+          listContainer.appendChild(card);
+        });
+      }
+    }
+
+  } catch (e) {
+    console.warn("Could not load awards (likely CORS):", e);
+  }
 }
 
-btnPrev.addEventListener('click', () => setTheme(currentThemeIndex - 1));
-btnNext.addEventListener('click', () => setTheme(currentThemeIndex + 1));
+async function loadMenu() {
+  try {
+    const response = await fetch('menu.json');
+    if (!response.ok) return;
+    const items = await response.json();
+
+    const nav = document.getElementById('main-nav');
+    if (!nav) return;
+
+    nav.innerHTML = '';
+    items.forEach(item => {
+      const a = document.createElement('a');
+      a.href = item.link;
+      a.textContent = item.name;
+      nav.appendChild(a);
+    });
+  } catch (e) {
+    console.warn("Could not load menu:", e);
+  }
+}
 
 
 // --- Main Loop ---
@@ -554,9 +645,9 @@ function loop() {
   }
 
   // Render
-  const theme = THEMES[currentThemeIndex];
-  ctx.fillStyle = theme.bg;
-  ctx.fillRect(0, 0, width, height); // usage of clearRect creates transparent canvas, we want BG color
+  // Hero is always black
+  ctx.fillStyle = FIXED_HERO_THEME.bg;
+  ctx.fillRect(0, 0, width, height);
   // ctx.clearRect(0, 0, width, height); <-- replaced
 
   // Optimization: Don't use forEach for massive arrays if perf is bad, but 

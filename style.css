@@ -1,14 +1,59 @@
+:root {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --mission-bg: #000000;
+  --mission-text: #ffffff;
+  --header-bg: rgba(0, 0, 0, 0.6);
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
-  background: #000;
+  background: var(--bg-color);
+  color: var(--text-color);
   overflow-x: hidden;
-  overflow-y: auto;
   /* Enable vertical scroll */
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: background 0.3s, color 0.3s;
+  scroll-behavior: smooth;
+  /* Smooth Scrolling */
+}
+
+#main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 1000;
+  background: var(--header-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+
+#main-nav {
+  display: flex;
+  gap: 30px;
+}
+
+#main-nav a {
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+#main-nav a:hover {
+  opacity: 1;
 }
 
 canvas {
@@ -35,21 +80,29 @@ canvas {
 #mission {
   position: relative;
   z-index: 10;
-  background: #000;
+  background: #f2f4f6;
   min-height: 100vh;
   width: 100%;
   display: flex;
+  flex-direction: column;
+  /* Allow content to stack */
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #000000;
   padding: 40px;
   box-sizing: border-box;
+  overflow: hidden;
+  /* Contain bubbles */
+  transition: background 0.3s, color 0.3s;
 }
 
 .mission-content {
   max-width: 800px;
   text-align: center;
   opacity: 1;
+  position: relative;
+  z-index: 2;
+  /* Above bubbles */
 }
 
 .mission-content h2 {
@@ -109,31 +162,211 @@ canvas {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.theme-nav {
-  position: fixed;
+/* Theme Nav Removed */
+
+/* Sections */
+#mission,
+#what-is-monad {
+  position: relative;
+  z-index: 10;
+  background: #f2f4f6;
+  /* Light Theme Fixed */
+  min-height: 80vh;
+  /* Reduced slightly to allow flow */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #000000;
+  /* Dark Text */
+  padding: 80px 40px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#what-is-monad {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  /* Subtle separate */
+}
+
+/* Awards */
+#awards-section {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  width: 100%;
+  background: #000000;
+  /* Dark Theme Fixed */
+  color: #ffffff;
+  /* Light Text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#awards-list {
+  position: relative;
+  z-index: 10;
+  padding: 80px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  background: #000000;
+  /* Dark Theme Fixed */
+  color: #ffffff;
+  /* Light Text */
+}
+
+#trophy {
+  position: absolute;
   top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-family: 'Inter', sans-serif;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 100px;
+  filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+  z-index: 5;
+}
+
+#awards-orbit {
+  position: relative;
+  width: 800px;
+  /* Orbit Diameter */
+  height: 800px;
+  border-radius: 50%;
+  /* border: 1px dashed rgba(255,255,255,0.1); Optional guide */
+  /* animation removed for scroll linkage */
+  transform-origin: center center;
+}
+
+.award-bubble {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Default center, JS will offset */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  /* Circle bubbles look better in orbit */
+  width: 180px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  opacity: 0.9;
+
+  /* Defaults for JS manipulation */
+  transform: translate(-50%, -50%);
+}
+
+.award-bubble strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.award-bubble span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
   font-weight: 300;
-  font-size: 60px;
-  color: rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  z-index: 100;
-  padding: 20px;
-  transition: color 0.3s;
-  user-select: none;
 }
 
-.theme-nav:hover {
-  color: rgba(255, 255, 255, 0.8);
+.award-card {
+  width: 100%;
+  max-width: 600px;
+  border: 1px solid #FFD700;
+  border-radius: 50px;
+  /* Pill shape */
+  padding: 20px 40px;
+  text-align: center;
+  background: rgba(128, 128, 128, 0.05);
+  transition: all 0.3s ease;
+  color: inherit;
+  cursor: default;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-#theme-prev {
-  left: 20px;
+.award-card:hover {
+  background: rgba(255, 215, 0, 0.05);
+  /* Height expands automatically based on content reveal */
 }
 
-#theme-next {
-  right: 20px;
+.award-card strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: inherit;
+}
+
+.award-details {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.award-card:hover .award-details {
+  max-height: 100px;
+  /* Arbitrary limit, needs to be enough for text */
+  opacity: 1;
+  margin-top: 10px;
+}
+
+.award-details p {
+  font-size: 14px;
+  color: rgba(150, 150, 150, 1);
+  /* Fallback gray */
+  color: gray;
+  /* Explicit gray as requested, or opacity mix */
+  margin: 0 0 5px 0;
+}
+
+/* Theme aware gray */
+:root {
+  --text-gray: rgba(255, 255, 255, 0.6);
+}
+
+/* We can adjust this variable based on theme in JS if needed, but 'gray' is safe enough usually. */
+
+.award-details span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.6;
+  font-weight: 300;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes counter-spin {
+  100% {
+    transform: translate(-50%, -50%) rotate(-360deg);
+  }
+
+  /* Note: translate(-50%, -50%) is needed if centering, but we set margins/transform in JS?
+     Actually, if we position with left/top, bubble origin is top-left.
+     Effectively we want to rotate around its own center.
+     Let's handle the translate in the main rule or JS.
+  */
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
 }

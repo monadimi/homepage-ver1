@@ -1,0 +1,26 @@
+[
+  {
+      "name": "Home",
+      "link": "#"
+  },
+  {
+      "name": "Mission",
+      "link": "#mission"
+  },
+  {
+      "name": "What is MONAD?",
+      "link": "#what-is-monad"
+  },
+  {
+      "name": "Awards",
+      "link": "#awards-section"
+  },
+  {
+      "name": "Careers",
+      "link": "#"
+  },
+  {
+      "name": "Contact",
+      "link": "#"
+  }
+]
