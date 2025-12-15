@@ -77,6 +77,35 @@ canvas {
   z-index: 1;
 }
 
+/* Marquee Section */
+#recruit-marquee {
+  position: relative;
+  width: 100%;
+  background: #000000;
+  color: #ffffff;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  padding: 20px 0;
+  z-index: 20;
+  /* Ensure it sits above transitions */
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 20px;
+  will-change: transform;
+}
+
+.marquee-track span {
+  font-size: 32px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
 #mission {
   position: relative;
   z-index: 10;

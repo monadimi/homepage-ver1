@@ -375,6 +375,13 @@ window.addEventListener('resize', () => {
 
 
 window.addEventListener('mousemove', e => {
+  if (window.scrollY > 100) {
+    // If we are scrolled down, ignore Hero interactions
+    // Move pointer off screen to stop hover effects
+    mouse.x = -9999;
+    mouse.y = -9999;
+    return;
+  }
   mouse.x = e.clientX;
   mouse.y = e.clientY;
 
@@ -429,6 +436,26 @@ window.addEventListener('scroll', () => {
       });
     });
   }
+
+  // --- Marquee Logic ---
+  const marqueeTrack = document.querySelector('.marquee-track');
+  if (marqueeTrack) {
+    const speed = 1.5;
+    // Calculate offset. We want it to move LEFT as we scroll DOWN?
+    // "좌우로 스크롤되게 해" -> Scroll horizontally.
+    // Usually dragging down -> text moves left.
+
+    // Infinite loop math:
+    // We need to know the width of the content to loop it.
+    // Let's assume the HTML is static for now or has been duplicated enough.
+    // To make it truly infinite without gaps, we'd need to duplicate programmatically.
+    // Let's do a simple transform for now, and if needed, I'll add duplication in init.
+
+    // Simple Scroll Link
+    marqueeTrack.style.transform = `translateX(${-scrollY * speed}px)`;
+  }
+
+  // --- Dynamic Color Inversion ---
 });
 
 // --- Game Logic ---
