@@ -29,7 +29,7 @@ function setupMenu() {
 
 async function loadMenu() {
   try {
-    const response = await fetch('menu.json?v=' + AppConfig.VERSION);
+    const response = await fetch('data/menu.json?v=' + AppConfig.VERSION);
     if (!response.ok) return;
     const items = await response.json();
 
@@ -84,7 +84,7 @@ async function renderProjectsPage() {
 }
 
 async function fetchProjects() {
-  const response = await fetch('./projects.json?v=' + AppConfig.VERSION);
+  const response = await fetch('data/projects.json?v=' + AppConfig.VERSION);
   if (!response.ok) throw new Error('projects.json not found');
   return response.json();
 }

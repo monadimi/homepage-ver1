@@ -829,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadMenu() {
   try {
-    const response = await fetch('menu.json?v=' + AppConfig.VERSION);
+    const response = await fetch('data/menu.json?v=' + AppConfig.VERSION);
     if (!response.ok) return;
     const items = await response.json();
 
