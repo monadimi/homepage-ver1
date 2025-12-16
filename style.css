@@ -864,7 +864,6 @@ canvas {
   background: linear-gradient(145deg, #050505 0%, #1a1a1a 100%);
   color: #ffffff;
   min-height: 100vh;
-  padding-bottom: 100px;
 }
 
 .project-hero {
