@@ -8,7 +8,7 @@ def rgb_to_gray(hexcolor):
     y = int(0.2126*r + 0.7152*g + 0.0722*b)
     return f"#{y:02x}{y:02x}{y:02x}"
 
-with open("src/footprint.svg") as f:
+with open("/Users/hjun1052/Documents/Codes/NormalProjects/monaw2/src/foootprint.svg") as f:
     svg = f.read()
 
 def repl(m):
@@ -16,5 +16,5 @@ def repl(m):
 
 svg = re.sub(r'fill="(#[0-9a-fA-F]{6})"', repl, svg)
 
-with open("src/foootprint.svg", "w") as f:
+with open("/Users/hjun1052/Documents/Codes/NormalProjects/monaw2/src/foootprint.svg", "w") as f:
     f.write(svg)
