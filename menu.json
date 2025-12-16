@@ -1,11 +1,11 @@
 [
   {
       "name": "Home",
-      "link": "#"
+      "link": "index.html"
   },
   {
       "name": "Awards",
-      "link": "#awards-section"
+      "link": "index.html#awards-section"
   },
   {
       "name": "Members",
@@ -14,5 +14,9 @@
   {
     "name": "Projects",
     "link": "projects.html"
+  },
+  {
+    "name": "MONAD 2026",
+    "link": "monad2026.html"
   }
 ]

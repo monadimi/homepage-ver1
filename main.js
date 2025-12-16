@@ -82,8 +82,9 @@ function noise(x) {
 
 
 // --- Global State ---
-const canvas = document.getElementById('dot-canvas');
-const ctx = canvas.getContext('2d');
+// --- Global State ---
+let canvas = document.getElementById('dot-canvas');
+let ctx = canvas ? canvas.getContext('2d') : null;
 
 let width, height;
 let dots = [];
@@ -272,10 +273,17 @@ class Dot {
 // ...
 // ...
 // ... Init changes:
+// ... Init changes:
 function init() {
-  resize();
-  createGrid();
-  mapText();
+  // Try to get canvas again if it wasn't there initially (unlikely but safe)
+  canvas = document.getElementById('dot-canvas');
+  if (canvas) {
+    ctx = canvas.getContext('2d');
+    resize();
+    createGrid();
+    mapText();
+    loop(); // Only loop if we have canvas
+  }
 
   // Start
   // setTheme removed
@@ -300,11 +308,11 @@ function init() {
     }
   });
   loadAwards();
-  loop();
 }
 
 
 function resize() {
+  if (!canvas) return;
   const dpr = window.devicePixelRatio || 1;
 
   // Logical size
@@ -500,7 +508,8 @@ window.addEventListener('scroll', () => {
 function enterGameMode() {
   if (currentStage === CONFIG.STAGES.GAME) return;
   currentStage = CONFIG.STAGES.GAME;
-  document.getElementById('game-controls').classList.add('active');
+  const controls = document.getElementById('game-controls');
+  if (controls) controls.classList.add('active');
 
   // Convert current text state to alive if not already
   // (Handled in mapText, but if we want to reset to text state we can)
@@ -509,9 +518,15 @@ function enterGameMode() {
 function exitGameMode() {
   currentStage = CONFIG.STAGES.IDLE; // Or reform text?
   gamePlaying = false;
-  document.getElementById('game-controls').classList.remove('active');
-  document.getElementById('btn-play').style.display = 'block';
-  document.getElementById('btn-pause').style.display = 'none';
+
+  const controls = document.getElementById('game-controls');
+  if (controls) controls.classList.remove('active');
+
+  const btnPlay = document.getElementById('btn-play');
+  const btnPause = document.getElementById('btn-pause');
+
+  if (btnPlay) btnPlay.style.display = 'block';
+  if (btnPause) btnPause.style.display = 'none';
 
   // Restore text state?
   // Let's just go back to IDLE which will use noise/text logic
@@ -554,28 +569,35 @@ const btnPause = document.getElementById('btn-pause');
 const btnReset = document.getElementById('btn-reset');
 const btnClose = document.getElementById('btn-close');
 
-btnPlay.addEventListener('click', () => {
-  gamePlaying = true;
-  btnPlay.style.display = 'none';
-  btnPause.style.display = 'block';
-});
+if (btnPlay) {
+  btnPlay.addEventListener('click', () => {
+    gamePlaying = true;
+    btnPlay.style.display = 'none';
+    btnPause.style.display = 'block';
+  });
+}
 
-btnPause.addEventListener('click', () => {
-  gamePlaying = false;
-  btnPlay.style.display = 'block';
-  btnPause.style.display = 'none';
-});
+if (btnPause) {
+  btnPause.addEventListener('click', () => {
+    gamePlaying = false;
+    btnPlay.style.display = 'block';
+    btnPause.style.display = 'none';
+  });
+}
 
-btnReset.addEventListener('click', () => {
-  // Kill all
-  dots.forEach(d => d.alive = false);
-  gamePlaying = false;
-  btnPlay.style.display = 'block';
-  btnPause.style.display = 'none';
-});
+if (btnReset) {
+  btnReset.addEventListener('click', () => {
+    // Kill all
+    dots.forEach(d => d.alive = false);
+    gamePlaying = false;
+    if (btnPlay) btnPlay.style.display = 'block';
+    if (btnPause) btnPause.style.display = 'none';
+  });
+}
 
-
-btnClose.addEventListener('click', exitGameMode);
+if (btnClose) {
+  btnClose.addEventListener('click', exitGameMode);
+}
 
 // --- Theme Logic ---
 // --- Theme Logic (Refactored to Fixed Layout) ---
@@ -829,6 +851,7 @@ async function loadMenu() {
 
 // --- Main Loop ---
 function loop() {
+  if (!ctx) return;
   const now = Date.now();
   const elapsedTime = now - startTime;
 

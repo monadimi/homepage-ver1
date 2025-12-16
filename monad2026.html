@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MONAD 2026 Recruitment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;700&display=swap"
+    rel="stylesheet">
+  <!-- Using the same stylesheet -->
+  <link rel="stylesheet" href="./style.css?v=1.0">
+  <style>
+    /* Specific styles for monad2026 page */
+    #recruit-hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+      padding: 120px 20px 80px;
+      z-index: 10;
+    }
+
+    .recruit-content {
+      position: relative;
+      z-index: 5;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .main-title {
+      font-size: 4.5rem;
+      font-weight: 900;
+      margin-bottom: 2rem;
+      background: linear-gradient(to right, #ffffff, #a0a0a0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .sub-title {
+      font-size: 1.5rem;
+      font-weight: 300;
+      margin-bottom: 3rem;
+      opacity: 0.9;
+      color: #e0e0e0;
+      letter-spacing: -0.01em;
+    }
+
+    /* Hero Background: World Map Only */
+    .bg-layer {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .world-bg {
+      top: 50%;
+      left: 50%;
+      width: 90%;
+      max-width: 1000px;
+      transform: translate(-50%, -50%);
+      opacity: 0.2;
+      /* Subtle map background */
+      filter: drop-shadow(0 0 40px rgba(100, 200, 255, 0.15));
+    }
+
+    /* Footprint Section */
+    #footprint-section {
+      width: 100%;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 10;
+      padding: 80px 20px;
+      background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.8));
+    }
+
+    .footprint-img-std {
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+      margin-bottom: 40px;
+      filter: contrast(1.2) drop-shadow(0 0 30px rgba(255, 255, 255, 0.1));
+      opacity: 0.8;
+      transition: transform 0.5s ease;
+    }
+
+    .footprint-img-std:hover {
+      transform: scale(1.02);
+      opacity: 1;
+    }
+
+    .catchphrase {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      font-weight: 500;
+      color: #cccccc;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    .apply-btn {
+      display: inline-block;
+      padding: 20px 60px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #000;
+      background: #fff;
+      border-radius: 999px;
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+      margin-top: 2rem;
+    }
+
+    .apply-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 60px rgba(255, 255, 255, 0.4);
+      background: #f0f0f0;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      .main-title {
+        font-size: 2.8rem;
+      }
+
+      .world-bg {
+        width: 140%;
+        opacity: 0.15;
+      }
+
+      .footprint-img-std {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header id="main-header">
+    <button id="menu-toggle" aria-label="Toggle Menu">
+      <span></span>
+      <span></span>
+    </button>
+    <nav id="main-nav"></nav>
+  </header>
+
+
+
+  <!-- Hero Section with World Map Background -->
+  <main id="recruit-hero">
+    <img src="src/world.svg" alt="" class="bg-layer world-bg">
+
+    <div class="recruit-content">
+      <h1 class="main-title">
+        모나드의 최초가 될<br>
+        1기를 모집합니다
+      </h1>
+
+      <p class="sub-title">모나드와 함께 새로운 세계에 발자국을</p>
+
+      <a href="#" class="apply-btn">지금 지원하세요</a>
+    </div>
+  </main>
+
+  <!-- Separate Footprint Section below -->
+  <section id="footprint-section">
+    <img src="src/foootprint.svg" alt="Footprint" class="footprint-img-std">
+    <p class="catchphrase">
+      세상을 바꾸는 것은 모나드에서부터 시작됩니다
+    </p>
+  </section>
+
+  <footer id="main-footer">
+    <div class="footer-dot-text" id="footer-text">MONAD 2026</div>
+  </footer>
+
+  <script src="./config.js?v=1.0"></script>
+  <script src="./main.js?v=1.0"></script>
+</body>
+
+</html>
