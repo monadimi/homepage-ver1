@@ -1378,3 +1378,136 @@ canvas {
   color: rgba(255, 255, 255, 0.8);
   text-decoration: underline;
 }
+
+/* Awards Page Styles */
+#awards-page {
+  padding-top: 100px;
+  background: #000000;
+  min-height: 100vh;
+  position: relative;
+}
+
+.awards-hero {
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  text-align: center;
+  padding: 0 20px;
+  position: relative;
+  z-index: 20;
+}
+
+.awards-hero .eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #FFD700;
+  /* Gold */
+  margin: 0 0 12px 0;
+  display: block;
+}
+
+.awards-hero h1 {
+  font-size: 56px;
+  margin: 0 0 16px 0;
+  letter-spacing: -1px;
+}
+
+.awards-hero .lede {
+  margin: 0;
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+/* Specific overrides for Awards Page context */
+#awards-page #awards-section {
+  min-height: 60vh;
+  background: transparent;
+  margin-bottom: 40px;
+}
+
+#awards-page .folder-img {
+  opacity: 0.3 !important;
+}
+
+@media (max-width: 768px) {
+  .awards-hero h1 {
+    font-size: 32px;
+  }
+
+  #awards-page #awards-section {
+    min-height: 50vh;
+  }
+}
+
+/* Year Navigator */
+#year-navigator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  position: relative;
+  z-index: 20;
+  margin: 20px 0 60px 0;
+  /* Space between orbit and list */
+  padding: 0 20px;
+}
+
+#current-year-display {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 120px;
+  text-align: center;
+  /* Optional: Text Gradient */
+  background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.year-nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.year-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.year-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.year-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  #year-navigator {
+    gap: 20px;
+    margin: 40px 0;
+  }
+
+  #current-year-display {
+    font-size: 32px;
+  }
+
+  .year-nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
