@@ -35,7 +35,7 @@
     const footerText = document.getElementById('footer-text');
     if (!footerText) return;
 
-    const words = ["MONAD LEADS THE FUTURE", "Ⓒ MONAD 2025~", "MONAD IS IN DIMIGO", "FOR HUMANITY", "JOIN MONAD"];
+    const words = [">>=", "MONAD LEADS THE FUTURE", "Ⓒ MONAD 2025~", "MONAD IS IN DIMIGO", "FOR HUMANITY", "JOIN MONAD"];
     let currentIndex = 0;
 
     setInterval(() => {

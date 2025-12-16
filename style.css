@@ -376,6 +376,19 @@ canvas {
   /* Ensure it sits above transitions */
 }
 
+.marquee-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+  cursor: pointer;
+}
+
+.marquee-link:hover {
+  opacity: 0.8;
+  /* Subtle hover effect */
+}
+
 .marquee-track {
   display: flex;
   width: max-content;
