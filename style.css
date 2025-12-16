@@ -1332,3 +1332,37 @@ canvas {
     margin-right: 10px;
   }
 }
+
+/* Sub-Footer */
+#sub-footer {
+  width: 100%;
+  padding: 20px 0 60px;
+  /* Extra bottom padding for mobile browsers */
+  background: #000000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 10;
+}
+
+#sub-footer p {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 11px;
+  margin-bottom: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+#sub-footer a {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 11px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+#sub-footer a:hover {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: underline;
+}
