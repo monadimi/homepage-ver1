@@ -6,7 +6,7 @@
 (function () {
   const COOKIE_SEEN_KEY = 'monad_cookie_seen';
   const EXPAND_DURATION = 3000; // Time to stay expanded on first visit
-  const FADE_OUT_DELAY = 10000; // Time before fading out if no interaction
+  const FADE_OUT_DELAY = 5000; // Time before fading out if no interaction
 
   // SVG Icon
   const COOKIE_ICON = `
