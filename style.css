@@ -760,8 +760,10 @@ canvas {
   width: min(96vw, 1280px);
   max-width: 1280px;
   margin: 0 auto;
-  height: min(780px, calc(100vh - 180px));
-  min-height: 540px;
+  margin-top: 150px;
+  height: min(500px, calc(100vh - 140px));
+  min-height: 500px;
+  padding-top: 80px;
   overflow: visible;
   cursor: grab;
 }
@@ -769,15 +771,16 @@ canvas {
 .member-slide {
   position: absolute;
   left: 50%;
-  bottom: -525px;
+  bottom: -350px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 25px;
   box-sizing: border-box;
   transform-origin: 50% 960px;
   filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.45));
+  overflow: visible;
 }
 
 .member-slider.dragging {
