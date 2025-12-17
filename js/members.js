@@ -3,8 +3,14 @@ const DEFAULT_IMAGE = 'https://placehold.co/160x160?text=Member';
 const state = {
   cohorts: [],
   byCohort: {},
-  current: ''
+  current: '',
+  indexByCohort: {}
 };
+const SWIPE_THRESHOLD = 50;
+const FAN_MAX_VISIBLE = 8;
+const FAN_ANGLE_STEP = 18;
+const FAN_RADIUS_BASE = 720;
+const DRAG_STEP_PX = 90;
 
 function init() {
   setupMenu(); // Setup static button immediately
@@ -103,6 +109,7 @@ function buildCohortState(members = []) {
   state.cohorts = cohorts;
   state.byCohort = byCohort;
   state.current = cohorts[0] || '';
+  state.indexByCohort = {};
 }
 
 function buildButtons(wrapper, container) {
@@ -141,14 +148,144 @@ function renderSelectedCohort(container, cohort) {
   }
 
   container.innerHTML = '';
-  const grid = document.createElement('div');
-  grid.className = 'member-grid';
+  const slider = document.createElement('div');
+  slider.className = 'member-slider';
 
-  members.forEach(member => {
-    grid.appendChild(createMemberCard(member));
+  const slides = [];
+  members.forEach((member, index) => {
+    const slide = document.createElement('div');
+    slide.className = 'member-slide';
+    slide.dataset.index = index;
+    slide.appendChild(createMemberCard(member));
+    slider.appendChild(slide);
+    slides.push(slide);
   });
 
-  container.appendChild(grid);
+  const counter = document.createElement('div');
+  counter.className = 'slider-counter';
+
+  slider.appendChild(counter);
+  container.appendChild(slider);
+
+  const maxIndex = members.length - 1;
+  let currentIndex = Math.min(state.indexByCohort[cohort] || 0, maxIndex);
+  let currentPosition = currentIndex;
+
+  const wrapIndex = (value) => {
+    const len = members.length;
+    return ((value % len) + len) % len;
+  };
+
+  const fanOffset = (idx, position, len) => {
+    const offset = idx - position;
+    const mod = ((offset % len) + len) % len;
+    if (mod > len / 2) return mod - len;
+    return mod;
+  };
+
+  const layoutSlides = (useAnimation = true, position = currentPosition) => {
+    const radius = Math.max(FAN_RADIUS_BASE, slider.clientHeight * 0.9);
+
+    slides.forEach((slide, idx) => {
+      const offset = fanOffset(idx, position, members.length);
+      const abs = Math.abs(offset);
+      if (abs > FAN_MAX_VISIBLE) {
+        slide.style.opacity = '0';
+        slide.style.pointerEvents = 'none';
+        slide.style.transform = 'translateZ(-1200px)';
+        slide.style.clipPath = 'inset(0px 0px 0px 0px)';
+        return;
+      }
+
+      const angle = offset * FAN_ANGLE_STEP;
+      const lean = offset * 6;
+      const depth = -abs * 140;
+      const lift = -abs * 10;
+      const scale = 1 - Math.min(abs * 0.06, 0.32);
+      const inset = Math.max(0, Math.min(35, (abs - (FAN_MAX_VISIBLE - 1)) * 18));
+
+      slide.style.opacity = String(1 - Math.min(abs, FAN_MAX_VISIBLE) / (FAN_MAX_VISIBLE + 0.6));
+      slide.style.pointerEvents = 'auto';
+      slide.style.zIndex = String(100 - abs);
+      slide.style.transition = useAnimation ? 'transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease' : 'none';
+      slide.style.clipPath = inset > 0 ? `inset(0px ${inset}px 0px ${inset}px round 18px)` : 'inset(0px 0px 0px 0px round 18px)';
+      slide.style.transform = `
+        translateX(-50%)
+        rotate(${angle}deg)
+        translateY(-${radius}px)
+        translateZ(${depth}px)
+        translateY(${lift}px)
+        rotate(${lean}deg)
+        scale(${scale})
+      `;
+    });
+    counter.textContent = `${wrapIndex(Math.round(position)) + 1} / ${members.length}`;
+    state.indexByCohort[cohort] = wrapIndex(Math.round(position));
+  };
+
+  const goNext = () => {
+    currentIndex = wrapIndex(currentIndex + 1);
+    currentPosition = currentIndex;
+    layoutSlides(true);
+  };
+
+  const goPrev = () => {
+    currentIndex = wrapIndex(currentIndex - 1);
+    currentPosition = currentIndex;
+    layoutSlides(true);
+  };
+
+  let isDragging = false;
+  let startX = 0;
+  let lastX = 0;
+  let baseIndex = 0;
+  let pointerId = null;
+  let dragStartTime = 0;
+
+  const onPointerDown = (e) => {
+    e.preventDefault();
+    isDragging = true;
+    pointerId = e.pointerId;
+    startX = e.clientX;
+    lastX = startX;
+    baseIndex = currentIndex;
+    currentPosition = currentIndex;
+    slider.setPointerCapture(pointerId);
+    slider.classList.add('dragging');
+    dragStartTime = performance.now();
+  };
+
+  const onPointerMove = (e) => {
+    if (!isDragging) return;
+    lastX = e.clientX;
+    const delta = lastX - startX;
+    const offset = delta / DRAG_STEP_PX;
+    currentPosition = baseIndex - offset;
+    layoutSlides(false, currentPosition);
+  };
+
+  const onPointerUp = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    const elapsed = performance.now() - dragStartTime;
+    const momentumStep = Math.abs(lastX - startX) > SWIPE_THRESHOLD && elapsed < 350 ? Math.sign(startX - lastX) : 0;
+    currentIndex = wrapIndex(Math.round(currentPosition + momentumStep));
+    currentPosition = currentIndex;
+    if (pointerId !== null) {
+      slider.releasePointerCapture(pointerId);
+      pointerId = null;
+    }
+    slider.classList.remove('dragging');
+    layoutSlides(true);
+  };
+
+  slider.addEventListener('pointerdown', onPointerDown);
+  slider.addEventListener('pointermove', onPointerMove);
+  slider.addEventListener('pointerup', onPointerUp);
+  slider.addEventListener('pointercancel', onPointerUp);
+  slider.addEventListener('pointerleave', onPointerUp);
+
+  layoutSlides(false);
 }
 
 function createMemberCard(member) {
