@@ -162,9 +162,7 @@ function renderSelectedCohort(container, cohort) {
   });
 
   const counter = document.createElement('div');
-  counter.className = 'slider-counter';
 
-  slider.appendChild(counter);
   container.appendChild(slider);
 
   const maxIndex = members.length - 1;
@@ -294,6 +292,13 @@ function createMemberCard(member) {
   const card = document.createElement('article');
   card.className = 'member-card';
 
+  const cohortEl = document.createElement('p');
+  cohortEl.className = 'member-cohort';
+  cohortEl.textContent = generalLabel;
+
+  const body = document.createElement('div');
+  body.className = 'member-body';
+
   const avatar = document.createElement('div');
   avatar.className = 'member-avatar';
   avatar.style.backgroundImage = `url('${image || DEFAULT_IMAGE}')`;
@@ -301,13 +306,15 @@ function createMemberCard(member) {
   const meta = document.createElement('div');
   meta.className = 'member-meta';
   meta.innerHTML = `
-      <p class="member-cohort">${generalLabel}</p>
       <h4 class="member-name">${name || '이름 미정'}</h4>
       <p class="member-desc">${description || ''}</p>
     `;
 
-  card.appendChild(avatar);
-  card.appendChild(meta);
+  body.appendChild(avatar);
+  body.appendChild(meta);
+
+  card.appendChild(cohortEl);
+  card.appendChild(body);
   return card;
 }
 
@@ -319,7 +326,7 @@ function parseCohort(label = '') {
 function formatGeneralCohort(department, generalCohort) {
   const dept = department || '학과 미정';
   const gen = generalCohort ? `${generalCohort}` : '기수 미정';
-  return `${dept} ${gen}`;
+  return `${gen} ${dept}`;
 }
 
 // Init

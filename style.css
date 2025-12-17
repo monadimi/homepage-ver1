@@ -750,13 +750,14 @@ canvas {
   display: flex;
   flex-direction: column;
   gap: 36px;
-  max-width: 1280px;
+  max-width: none;
+  width: 100%;
   margin: 0 auto;
 }
 
 .member-slider {
   position: relative;
-  width: 100%;
+  width: min(96vw, 1280px);
   max-width: 1280px;
   margin: 0 auto;
   height: min(780px, calc(100vh - 180px));
@@ -768,13 +769,14 @@ canvas {
 .member-slide {
   position: absolute;
   left: 50%;
-  bottom: -260px;
+  bottom: -525px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   box-sizing: border-box;
-  transform-origin: 50% 900px;
+  transform-origin: 50% 960px;
   filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.45));
 }
 
@@ -782,33 +784,19 @@ canvas {
   cursor: grabbing;
 }
 
-.slider-counter {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  font-size: 14px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .member-grid {
   display: grid;
   gap: 22px;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
 }
 
 .member-card {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 22px;
-  align-items: center;
-  padding: 32px 32px;
-  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: stretch;
+  padding: 26px 24px;
+  min-height: 280px;
   border-radius: 30px;
   background: radial-gradient(circle at 18% 25%, rgba(255, 255, 255, 0.18), transparent 55%), radial-gradient(circle at 82% -10%, rgba(255, 255, 255, 0.14), transparent 50%), linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -817,8 +805,17 @@ canvas {
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(6px);
-  width: min(100%, 1040px);
+  width: 100%;
+  max-width: 300px;
   margin: 0 auto;
+  text-align: left;
+}
+
+.member-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .member-card:hover {
@@ -838,9 +835,9 @@ canvas {
 }
 
 .member-avatar {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+  width: 180px;
+  height: 180px;
+  border-radius: 12px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -855,7 +852,7 @@ canvas {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 50%;
+  border-radius: 12px;
   background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 55%);
   opacity: 0.45;
   pointer-events: none;
@@ -867,11 +864,14 @@ canvas {
   gap: 10px;
   position: relative;
   z-index: 1;
+  text-align: center;
+  align-items: center;
 }
 
 .member-cohort {
   margin: 0;
   font-size: 13px;
+  text-align: center;
   opacity: 0.9;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -879,9 +879,13 @@ canvas {
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border-radius: 12px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
+  align-self: center;
+  justify-content: center;
+  max-width: none;
+  white-space: nowrap;
 }
 
 .member-name {
@@ -895,7 +899,7 @@ canvas {
   font-size: 14px;
   line-height: 1.7;
   opacity: 0.88;
-  max-width: 780px;
+  max-width: 720px;
 }
 
 .members-empty {
@@ -1359,9 +1363,9 @@ canvas {
   }
 
   .member-card {
-    display: grid;
-    grid-template-columns: 1fr;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
     padding: 20px 16px;
     width: 100%;
     min-width: 0;
@@ -1369,11 +1373,17 @@ canvas {
     box-sizing: border-box;
   }
 
+  .member-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
   .member-avatar {
-    width: 90px;
-    height: 90px;
-    margin: 0 auto 16px auto;
-    /* Force margin */
+    width: 120px;
+    height: 120px;
+    margin: 0;
     flex-shrink: 0;
   }
 
