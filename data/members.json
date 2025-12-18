@@ -38,5 +38,21 @@
     "name": "황정빈",
     "description": "집가고싶다.",
     "image": "https://placehold.co/160x160?text=JB"
+  },
+  {
+    "cohort": "0기",
+    "generalCohort": "24기",
+    "department": "해킹방어과",
+    "name": "최승빈",
+    "description": "???",
+    "image": "https://placehold.co/160x160?text=SB"
+  },
+  {
+    "cohort": "0기",
+    "generalCohort": "24기",
+    "department": "해킹방어과",
+    "name": "최윤혁",
+    "description": "???",
+    "image": "https://placehold.co/160x160?text=YH"
   }
 ]
