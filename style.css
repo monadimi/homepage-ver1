@@ -242,11 +242,11 @@ body {
   }
 
   .member-hero h1 {
-    font-size: 32px;
+    font-size: 40px;
   }
 
   .member-hero .lede {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .cohort-button {
@@ -536,16 +536,16 @@ canvas {
 #members-page {
   position: relative;
   z-index: 10;
-  background: radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.08), transparent 35%), radial-gradient(circle at 82% 8%, rgba(255, 255, 255, 0.08), transparent 35%), linear-gradient(145deg, #040507 0%, #0b0f17 45%, #070b12 100%);
+  background: linear-gradient(145deg, #050505 0%, #1a1a1a 100%);
   color: #e9ecf1;
-  padding: 140px 32px 140px;
+  padding: 0 32px 140px;
   box-sizing: border-box;
   overflow: hidden;
 }
 
 @media (max-width: 768px) {
   #members-page {
-    padding: 80px 16px 100px;
+    padding: 0 16px 100px;
     width: 100%;
     overflow-x: hidden;
     /* Ensure section itself doesn't scroll */
@@ -562,43 +562,17 @@ canvas {
 
 
 .member-hero {
-  max-width: 1200px;
-  margin: 0 auto 70px auto;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 120px 20px 60px;
   position: relative;
   z-index: 1;
-  padding: 22px;
-  border-radius: 30px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
 }
 
 .member-hero::before,
 .member-hero::after {
-  content: "";
-  position: absolute;
-  filter: blur(120px);
-  opacity: 0.28;
-  z-index: -1;
-}
-
-.member-hero::before {
-  width: 380px;
-  height: 380px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  top: -120px;
-  left: -140px;
-}
-
-.member-hero::after {
-  width: 480px;
-  height: 480px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  bottom: -180px;
-  right: -160px;
+  display: none;
 }
 
 .member-hero-grid {
@@ -628,17 +602,28 @@ canvas {
   pointer-events: none;
 }
 
+.member-hero .eyebrow {
+  color: #27E1A3;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 16px;
+}
+
 .member-hero h1 {
-  font-size: clamp(46px, 5vw, 72px);
-  margin: 0 0 14px 0;
-  letter-spacing: -1.4px;
+  font-size: 64px;
+  margin: 0 0 24px 0;
+  font-weight: 900;
+  letter-spacing: -2px;
 }
 
 .member-hero .lede {
-  margin: 0 0 18px 0;
-  font-size: 18px;
-  opacity: 0.85;
-  max-width: 680px;
+  margin: 0;
+  font-size: 20px;
+  opacity: 0.7;
+  font-weight: 300;
   line-height: 1.6;
 }
 
@@ -714,17 +699,15 @@ canvas {
 }
 
 .selector-row {
-  margin-top: 32px;
+  margin: 28px auto 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 14px;
   flex-wrap: wrap;
-  padding: 14px 16px;
+  padding: 14px 18px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+  max-width: 860px;
 }
 
 .selector-row.elevated {
@@ -737,9 +720,9 @@ canvas {
 }
 
 .selector-label {
-  font-size: 14px;
-  opacity: 0.75;
-  letter-spacing: 0.04em;
+  font-size: 13px;
+  opacity: 0.7;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
@@ -1376,15 +1359,15 @@ canvas {
 */
 @media (max-width: 768px) {
   .member-hero {
-    padding: 0 16px;
+    padding: 80px 16px 40px;
   }
 
   .member-hero h1 {
-    font-size: 32px;
+    font-size: 40px;
   }
 
   .member-hero .lede {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .member-grid {
@@ -1655,40 +1638,44 @@ canvas {
 
 /* Awards Page Styles */
 #awards-page {
-  padding-top: 100px;
-  background: #000000;
+  padding: 0 32px 120px;
+  background: linear-gradient(145deg, #050505 0%, #1a1a1a 100%);
+  color: #e9ecf1;
   min-height: 100vh;
   position: relative;
 }
 
 .awards-hero {
   max-width: 900px;
-  margin: 0 auto 40px auto;
+  margin: 0 auto;
   text-align: center;
-  padding: 0 20px;
+  padding: 120px 20px 60px;
   position: relative;
   z-index: 20;
 }
 
 .awards-hero .eyebrow {
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #FFD700;
-  /* Gold */
-  margin: 0 0 12px 0;
+  font-weight: 700;
+  margin: 0 0 16px 0;
   display: block;
 }
 
 .awards-hero h1 {
-  font-size: 56px;
-  margin: 0 0 16px 0;
-  letter-spacing: -1px;
+  font-size: 64px;
+  margin: 0 0 24px 0;
+  font-weight: 900;
+  letter-spacing: -2px;
 }
 
 .awards-hero .lede {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.6;
   opacity: 0.8;
 }
 
@@ -1704,8 +1691,16 @@ canvas {
 }
 
 @media (max-width: 768px) {
+  #awards-page {
+    padding: 0 16px 100px;
+  }
+
+  .awards-hero {
+    padding: 80px 16px 40px;
+  }
+
   .awards-hero h1 {
-    font-size: 32px;
+    font-size: 40px;
   }
 
   #awards-page #awards-section {

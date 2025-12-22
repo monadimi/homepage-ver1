@@ -10,7 +10,7 @@ const SWIPE_THRESHOLD = 50;
 const FAN_MAX_VISIBLE = 8;
 const FAN_ANGLE_STEP = 18;
 const FAN_RADIUS_BASE = 720;
-const DRAG_STEP_PX = 90;
+const DRAG_STEP_PX = 120;
 
 function init() {
   setupMenu(); // Setup static button immediately
@@ -168,6 +168,8 @@ function renderSelectedCohort(container, cohort) {
   const maxIndex = members.length - 1;
   let currentIndex = Math.min(state.indexByCohort[cohort] || 0, maxIndex);
   let currentPosition = currentIndex;
+  const slideVisibility = slides.map(() => true);
+  const slideOffsets = slides.map(() => 0);
 
   const wrapIndex = (value) => {
     const len = members.length;
@@ -187,7 +189,20 @@ function renderSelectedCohort(container, cohort) {
     slides.forEach((slide, idx) => {
       const offset = fanOffset(idx, position, members.length);
       const abs = Math.abs(offset);
-      if (abs > FAN_MAX_VISIBLE) {
+      const visible = abs <= FAN_MAX_VISIBLE;
+      const wasVisible = slideVisibility[idx];
+      const previousOffset = slideOffsets[idx];
+      const offsetJump = Math.abs(offset - previousOffset);
+      slideVisibility[idx] = visible;
+      slideOffsets[idx] = offset;
+
+      const instantPlacement = !wasVisible || offsetJump > 1;
+      const shouldAnimate = useAnimation && visible && wasVisible && !instantPlacement;
+      slide.style.transition = shouldAnimate
+        ? 'transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease'
+        : 'none';
+
+      if (!visible) {
         slide.style.opacity = '0';
         slide.style.pointerEvents = 'none';
         slide.style.transform = 'translateZ(-1200px)';
@@ -205,7 +220,6 @@ function renderSelectedCohort(container, cohort) {
       slide.style.opacity = String(1 - Math.min(abs, FAN_MAX_VISIBLE) / (FAN_MAX_VISIBLE + 0.6));
       slide.style.pointerEvents = 'auto';
       slide.style.zIndex = String(100 - abs);
-      slide.style.transition = useAnimation ? 'transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease' : 'none';
       slide.style.clipPath = inset > 0 ? `inset(0px ${inset}px 0px ${inset}px round 18px)` : 'inset(0px 0px 0px 0px round 18px)';
       slide.style.transform = `
         translateX(-50%)
@@ -267,7 +281,19 @@ function renderSelectedCohort(container, cohort) {
     isDragging = false;
     const elapsed = performance.now() - dragStartTime;
     const momentumStep = Math.abs(lastX - startX) > SWIPE_THRESHOLD && elapsed < 350 ? Math.sign(startX - lastX) : 0;
-    currentIndex = wrapIndex(Math.round(currentPosition + momentumStep));
+    const deltaFromDrag = currentPosition - baseIndex;
+    const rawSteps = deltaFromDrag + momentumStep;
+    const absRaw = Math.abs(rawSteps);
+    let steps;
+    if (absRaw < 0.35) {
+      steps = 0;
+    } else if (absRaw < 1.6) {
+      steps = Math.sign(rawSteps);
+    } else {
+      steps = Math.round(rawSteps);
+    }
+    steps = Math.max(-FAN_MAX_VISIBLE, Math.min(FAN_MAX_VISIBLE, steps));
+    currentIndex = wrapIndex(baseIndex + steps);
     currentPosition = currentIndex;
     if (pointerId !== null) {
       slider.releasePointerCapture(pointerId);
