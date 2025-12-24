@@ -14,7 +14,8 @@ const CONFIG = {
   GAME_MODES: {
     TETRIS: 'tetris',
     LIFE: 'life',
-    DOOM: 'doom'
+    DOOM: 'doom',
+    APPLE: 'apple'
   },
   DURATIONS: {
     INIT: 1800,      // ms
@@ -484,6 +485,17 @@ window.addEventListener('keydown', (e) => {
     doomIndex = 0;
   }
 
+  // APPLE Code
+  if (e.code === appleCode[appleIndex]) {
+    appleIndex++;
+    if (appleIndex === appleCode.length) {
+      enterGameMode(CONFIG.GAME_MODES.APPLE);
+      appleIndex = 0;
+    }
+  } else {
+    appleIndex = 0;
+  }
+
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].indexOf(e.code) > -1) {
     if (currentStage === CONFIG.STAGES.GAME || window.scrollY < 100) {
       e.preventDefault();
@@ -626,6 +638,9 @@ let konamiIndex = 0;
 const doomCode = ["KeyD", "KeyO", "KeyO", "KeyM"];
 let doomIndex = 0;
 
+const appleCode = ["KeyA", "KeyP", "KeyP", "KeyL", "KeyE"];
+let appleIndex = 0;
+
 function enterGameMode(mode) {
   currentStage = CONFIG.STAGES.GAME; // Keep this from original
   currentGameMode = mode;
@@ -675,6 +690,13 @@ function enterGameMode(mode) {
     if (window.doomAdapter) {
       window.doomAdapter.init();
     }
+  } else if (mode === CONFIG.GAME_MODES.APPLE) {
+    targetGridSpacing = 10; // High resolution for video
+    const video = document.getElementById('bad-apple-video');
+    if (video) {
+      video.currentTime = 0;
+      video.play();
+    }
   }
 }
 
@@ -685,6 +707,11 @@ function exitGameMode() {
 
   if (currentGameMode === CONFIG.GAME_MODES.DOOM && window.doomAdapter) {
     window.doomAdapter.stop();
+  }
+
+  if (currentGameMode === CONFIG.GAME_MODES.APPLE) {
+    const video = document.getElementById('bad-apple-video');
+    if (video) video.pause();
   }
 
   currentGameMode = null; // Clear mode
@@ -777,6 +804,37 @@ function updateGame(elapsedTime, deltaTime) {
             }
           }
           lastGameTick = now;
+        }
+      }
+    }
+  }
+  else if (currentGameMode === CONFIG.GAME_MODES.APPLE) {
+    const video = document.getElementById('bad-apple-video');
+    if (video && !video.paused) {
+      // 1. Create Offscreen Canvas to sample video
+      const sampleCanvas = document.createElement('canvas');
+      const sampleCtx = sampleCanvas.getContext('2d');
+      sampleCanvas.width = cols;
+      sampleCanvas.height = rows;
+
+      // 2. Draw Video to Canvas (resized to grid dimensions)
+      sampleCtx.drawImage(video, 0, 0, cols, rows);
+
+      // 3. Sample Pixels
+      const pixelData = sampleCtx.getImageData(0, 0, cols, rows).data;
+
+      // 4. Update Dots
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const i = (y * cols + x) * 4;
+          // Sample brightness (R+G+B / 3)
+          const brightness = (pixelData[i] + pixelData[i + 1] + pixelData[i + 2]) / 3;
+          const dot = dots[y * cols + x];
+          if (dot) {
+            dot.alive = brightness > 128; // Threshold
+            dot.opacity = dot.alive ? 1 : 0;
+            dot.color = dot.alive ? '#ffffff' : null;
+          }
         }
       }
     }
