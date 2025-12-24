@@ -9,8 +9,11 @@ const CONFIG = {
   STAGES: {
     INIT: 0,
     FORM_TEXT: 1,
-    IDLE: 2,
     GAME: 3 // New Stage
+  },
+  GAME_MODES: {
+    TETRIS: 0,
+    LIFE: 1
   },
   DURATIONS: {
     INIT: 1800,      // ms
@@ -101,6 +104,7 @@ class Dot {
 
     this.alive = false;
     this.nextAlive = false;
+    this.color = null; // Add color support
 
     this.originX = x; // Store original X
     this.originY = y; // Store original Y for restoration
@@ -133,7 +137,7 @@ class Dot {
       }
 
     } else if (currentStage === CONFIG.STAGES.GAME) {
-      // Game of Life Rendering
+      // Tetris Rendering
       if (this.alive) {
         this.targetOpacity = 1.0;
       } else {
@@ -246,12 +250,16 @@ class Dot {
     if (this.opacity <= 0.01) return;
 
     // Fixed Dark Theme for Hero
-    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+    // ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; // Old
 
-    // Better color handling:
-    // We already use opacity property.
     ctx.globalAlpha = this.opacity;
-    ctx.fillStyle = FIXED_HERO_THEME.dot;
+
+    // Check if color is set (for Tetris)
+    if (this.color) {
+      ctx.fillStyle = this.color;
+    } else {
+      ctx.fillStyle = FIXED_HERO_THEME.dot;
+    }
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, Math.abs(this.radius), 0, Math.PI * 2);
@@ -390,6 +398,11 @@ function mapText() {
   });
 }
 
+// --- Tetris Global ---
+const tetris = new TetrisGame();
+let lastDropTime = 0;
+const DROP_INTERVAL = 1000; // Auto drop every 1s
+
 // --- Interaction ---
 window.addEventListener('resize', () => {
   resize();
@@ -397,11 +410,8 @@ window.addEventListener('resize', () => {
   mapText();
 });
 
-
 window.addEventListener('mousemove', e => {
   if (window.scrollY > 100) {
-    // If we are scrolled down, ignore Hero interactions
-    // Move pointer off screen to stop hover effects
     mouse.x = -9999;
     mouse.y = -9999;
     return;
@@ -409,23 +419,24 @@ window.addEventListener('mousemove', e => {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
 
-  // Drag to paint
-  if (isMouseDown && currentStage >= CONFIG.STAGES.IDLE) {
-    // If simply dragging in IDLE, switch to GAME
-    if (currentStage === CONFIG.STAGES.IDLE) {
-      enterGameMode();
+  // Drag to paint Logic
+  // Only trigger if we are starting from IDLE or already in LIFE mode
+  if (isMouseDown && (currentStage === CONFIG.STAGES.IDLE || (currentStage === CONFIG.STAGES.GAME && currentGameMode === CONFIG.GAME_MODES.LIFE))) {
+
+    // Switch to LIFE mode if not already
+    if (currentStage !== CONFIG.STAGES.GAME || currentGameMode !== CONFIG.GAME_MODES.LIFE) {
+      enterGameMode(CONFIG.GAME_MODES.LIFE);
     }
 
     // Paint logic
-    // Find closest dot (grid cell)
     const spacing = CONFIG.SPACING * visualScale;
-    // Simple approximation
     dots.forEach(dot => {
       const dx = dot.x - mouse.x;
       const dy = dot.y - mouse.y;
       if (dx * dx + dy * dy < (spacing * spacing)) {
         dot.alive = true;
         dot.opacity = 1;
+        // dot.color is null for LIFE
       }
     });
   }
@@ -435,27 +446,79 @@ let isMouseDown = false;
 window.addEventListener('mousedown', () => isMouseDown = true);
 window.addEventListener('mouseup', () => isMouseDown = false);
 
+// Key Listener for Game Start & Control
+window.addEventListener('keydown', (e) => {
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].indexOf(e.code) > -1) {
+    if (currentStage === CONFIG.STAGES.GAME || window.scrollY < 100) {
+      e.preventDefault();
+    }
+  }
+
+  // Trigger Tetris on keys
+  if (currentStage !== CONFIG.STAGES.GAME) {
+    if (window.scrollY < 100 && (e.code === "ArrowUp" || e.code === "Space" || e.code === "KeyW")) {
+      enterGameMode(CONFIG.GAME_MODES.TETRIS);
+    }
+    return;
+  }
+
+  // If in LIFE mode, maybe switching to Tetris on keypress?
+  // Let's allow it.
+  if (currentGameMode === CONFIG.GAME_MODES.LIFE && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].indexOf(e.code) > -1) {
+    enterGameMode(CONFIG.GAME_MODES.TETRIS);
+    return;
+  }
+
+  // Pass to Tetris
+  if (!gamePlaying || currentGameMode !== CONFIG.GAME_MODES.TETRIS) return;
+
+  switch (e.code) {
+    case "ArrowLeft":
+    case "KeyA":
+      tetris.move(-1, 0);
+      break;
+    case "ArrowRight":
+    case "KeyD":
+      tetris.move(1, 0);
+      break;
+    case "ArrowUp":
+    case "KeyW":
+    case "KeyX":
+      tetris.rotatePiece();
+      break;
+    case "KeyZ":
+    case "ControlLeft":
+    case "ControlRight":
+      tetris.rotatePieceCCW();
+      break;
+    case "ArrowDown":
+    case "KeyS":
+      tetris.softDrop();
+      break;
+    case "Space":
+      tetris.hardDrop();
+      break;
+  }
+  // Force immediate update of grid visual
+  tetris.updateGrid(dots, cols, rows);
+});
+
+
 window.addEventListener('scroll', () => {
   scrollY = window.scrollY;
-  // Exit game mode on scroll?
-  if (scrollY > 50 && currentStage === CONFIG.STAGES.GAME) {
-    // Maybe pause or just let it coexist? 
-    // User asked for "evaporation", so game should probably pause or exit.
-    // Let's keep it simple.
+  // Exit game mode on scroll
+  if (scrollY > 100 && currentStage === CONFIG.STAGES.GAME) {
+    exitGameMode(); // Auto exit
   }
 
   // --- Orbit Rotation Linked to Scroll ---
   const orbitContainer = document.getElementById('awards-orbit');
   if (orbitContainer) {
-    // Wrap in RAF for performance
     requestAnimationFrame(() => {
-      // Rotation factor: 1px scroll = 0.2 deg rotation
       const rotation = scrollY * 0.2;
       orbitContainer.style.transform = `rotate(${rotation}deg)`;
-
       const bubbles = orbitContainer.querySelectorAll('.award-bubble');
       bubbles.forEach(bubble => {
-        // Maintain centering translate (-50%, -50%) AND apply counter rotation
         bubble.style.transform = `translate(-50%, -50%) rotate(${-rotation}deg)`;
       });
     });
@@ -465,17 +528,6 @@ window.addEventListener('scroll', () => {
   const marqueeTrack = document.querySelector('.marquee-track');
   if (marqueeTrack) {
     const speed = 1.5;
-    // Calculate offset. We want it to move LEFT as we scroll DOWN?
-    // "좌우로 스크롤되게 해" -> Scroll horizontally.
-    // Usually dragging down -> text moves left.
-
-    // Infinite loop math:
-    // We need to know the width of the content to loop it.
-    // Let's assume the HTML is static for now or has been duplicated enough.
-    // To make it truly infinite without gaps, we'd need to duplicate programmatically.
-    // Let's do a simple transform for now, and if needed, I'll add duplication in init.
-
-    // Simple Scroll Link
     marqueeTrack.style.transform = `translateX(${-scrollY * speed}px)`;
   }
 
@@ -484,73 +536,148 @@ window.addEventListener('scroll', () => {
   if (prompt) {
     if (scrollY > 50) {
       prompt.style.opacity = '0';
-      prompt.style.transform = 'translate(-50%, 20px)'; // Slide down slightly
+      prompt.style.transform = 'translate(-50%, 20px)';
     } else {
       prompt.style.opacity = '1';
       prompt.style.transform = 'translate(-50%, 0)';
     }
   }
-
-  // --- Dynamic Color Inversion ---
 });
 
-// --- Game Logic ---
-function enterGameMode() {
-  if (currentStage === CONFIG.STAGES.GAME) return;
-  currentStage = CONFIG.STAGES.GAME;
-  const controls = document.getElementById('game-controls');
-  if (controls) controls.classList.add('active');
+// Assuming CONFIG object is defined earlier in the file.
+// Adding new properties to CONFIG.STAGES and defining GAME_MODES.
 
-  // Convert current text state to alive if not already
-  // (Handled in mapText, but if we want to reset to text state we can)
+
+// ... (Existing variables) ...
+let currentGameMode = CONFIG.GAME_MODES.TETRIS;
+
+// ... (Dot Class changes if needed, mainly in update logic handled by mode) ...
+// Dot update logic already checks STAGES.GAME. We might need to check currentGameMode inside it 
+// or just let updateGame handle the physics/logic and Dot render based on state.
+// Current Dot.update ignores physics in GAME mode mostly. 
+// For LIFE mode, we might want physics? Or just grid logic.
+// Original Code had physics in updateGame? No, Dot.update had physics.
+// Let's modify Dot.update to handle LIFE mode physics if needed, 
+// but primarily LIFE is cellular automata.
+
+// --- Game Logic Switcher ---
+function enterGameMode(mode) {
+  if (currentStage === CONFIG.STAGES.GAME && currentGameMode === mode) return;
+
+  // If switching modes while already in game?
+  // Let's allow switching.
+
+  currentStage = CONFIG.STAGES.GAME;
+  currentGameMode = mode;
+  gamePlaying = true;
+
+  const controls = document.getElementById('game-controls');
+
+  if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
+    if (controls) controls.classList.add('active');
+    // Clear for Tetris
+    dots.forEach(d => {
+      d.alive = false;
+      d.opacity = 0;
+      d.color = null;
+    });
+    if (!tetris.isRunning) tetris.start();
+    lastDropTime = Date.now() - startTime;
+
+  } else {
+    // LIFE MODE
+    if (controls) controls.classList.add('active'); // Show controls for Life too
+
+    // Start Paused so user can paint
+    gamePlaying = false;
+
+    // Update Buttons (Show Play, Hide Pause)
+    const btnPlay = document.getElementById('btn-play');
+    const btnPause = document.getElementById('btn-pause');
+    const scoreEl = document.getElementById('game-score');
+
+    if (btnPlay) btnPlay.style.display = 'block';
+    if (btnPause) btnPause.style.display = 'none';
+    if (scoreEl) scoreEl.style.opacity = '0'; // Hide score for Life
+
+    // Pause Tetris if running
+    tetris.pause();
+  }
 }
 
 function exitGameMode() {
-  currentStage = CONFIG.STAGES.IDLE; // Or reform text?
+  currentStage = CONFIG.STAGES.IDLE;
   gamePlaying = false;
+  tetris.pause();
 
   const controls = document.getElementById('game-controls');
   if (controls) controls.classList.remove('active');
+
+  const scoreEl = document.getElementById('game-score');
+  if (scoreEl) scoreEl.style.opacity = '1'; // Restore opacity for next time (or rely on Tetris enter)
 
   const btnPlay = document.getElementById('btn-play');
   const btnPause = document.getElementById('btn-pause');
 
   if (btnPlay) btnPlay.style.display = 'block';
   if (btnPause) btnPause.style.display = 'none';
-
-  // Restore text state?
-  // Let's just go back to IDLE which will use noise/text logic
 }
 
-function updateGame() {
-  // 1. Compute Next State
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const dot = grid[r][c];
-      let neighbors = 0;
+function updateGame(elapsedTime, deltaTime) {
+  if (!gamePlaying) return;
 
-      // Check 8 neighbors
-      for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 1; j++) {
-          if (i === 0 && j === 0) continue;
-          const nr = r + i;
-          const nc = c + j;
-          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
-            if (grid[nr][nc].alive) neighbors++;
+  if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
+    // Dynamic Drop Interval based on level
+    // Base 200ms (Very Fast!) -> decreases by 10ms per level -> min 50ms
+    const currentInterval = Math.max(50, 200 - (tetris.level * 10));
+
+    // Auto Drop
+    if (elapsedTime - lastDropTime > currentInterval) {
+      tetris.drop();
+      lastDropTime = elapsedTime;
+    }
+    // Sync Visuals
+    tetris.updateGrid(dots, cols, rows);
+
+  } else {
+    // LIFE GAME LOGIC
+    // Slow down update rate for Life? 
+    // Logic handles this if we use LAST_TICK check in loop()
+
+    // 1. Compute Next State
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const dot = grid[r][c];
+        let neighbors = 0;
+
+        // Check 8 neighbors
+        for (let i = -1; i <= 1; i++) {
+          for (let j = -1; j <= 1; j++) {
+            if (i === 0 && j === 0) continue;
+            const nr = r + i;
+            const nc = c + j;
+            // Wrap around or boundary? Boundary for now.
+            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+              if (grid[nr][nc].alive) neighbors++;
+            }
           }
         }
-      }
 
-      if (dot.alive) {
-        dot.nextAlive = (neighbors === 2 || neighbors === 3);
-      } else {
-        dot.nextAlive = (neighbors === 3);
+        if (dot.alive) {
+          dot.nextAlive = (neighbors === 2 || neighbors === 3);
+        } else {
+          dot.nextAlive = (neighbors === 3);
+        }
       }
     }
-  }
 
-  // 2. Apply State
-  dots.forEach(dot => dot.alive = dot.nextAlive);
+    // 2. Apply State
+    dots.forEach(dot => {
+      dot.alive = dot.nextAlive;
+      dot.color = null; // Reset color for Life mode (white/default)
+      // Life visuals handled in Dot.update (targetOpacity = 1 if alive)
+    });
+  }
 }
 
 // --- UI Binding ---
@@ -562,6 +689,9 @@ const btnClose = document.getElementById('btn-close');
 if (btnPlay) {
   btnPlay.addEventListener('click', () => {
     gamePlaying = true;
+    if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
+      tetris.resume();
+    }
     btnPlay.style.display = 'none';
     btnPause.style.display = 'block';
   });
@@ -570,6 +700,9 @@ if (btnPlay) {
 if (btnPause) {
   btnPause.addEventListener('click', () => {
     gamePlaying = false;
+    if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
+      tetris.pause();
+    }
     btnPlay.style.display = 'block';
     btnPause.style.display = 'none';
   });
@@ -577,11 +710,22 @@ if (btnPause) {
 
 if (btnReset) {
   btnReset.addEventListener('click', () => {
-    // Kill all
-    dots.forEach(d => d.alive = false);
-    gamePlaying = false;
-    if (btnPlay) btnPlay.style.display = 'block';
-    if (btnPause) btnPause.style.display = 'none';
+    if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
+      tetris.start();
+      gamePlaying = true;
+      btnPlay.style.display = 'none';
+      btnPause.style.display = 'block';
+    } else {
+      // LIFE MODE RESET: Clear board
+      dots.forEach(d => {
+        d.alive = false;
+        d.opacity = 0;
+        d.nextAlive = false;
+      });
+      gamePlaying = false; // Pause on reset?
+      btnPlay.style.display = 'block';
+      btnPause.style.display = 'none';
+    }
   });
 }
 
@@ -856,7 +1000,7 @@ function loop() {
     }
   } else if (currentStage === CONFIG.STAGES.GAME) {
     if (gamePlaying && now - lastGameTick > GAME_TICK_RATE) {
-      updateGame();
+      updateGame(elapsedTime);
       lastGameTick = now;
     }
   } else if (currentStage === CONFIG.STAGES.FORM_TEXT) {
