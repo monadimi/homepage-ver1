@@ -669,14 +669,7 @@ function enterGameMode(mode) {
     btnPlay.style.display = 'block';
     btnReset.style.display = 'block';
   } else if (mode === CONFIG.GAME_MODES.DOOM) {
-    targetGridSpacing = 14; // Increased from 10 to handle circular dot performance overhead
-
-    // Clear Grid
-    dots.forEach(d => {
-      d.alive = false;
-      d.opacity = 0;
-      d.color = null;
-    });
+    targetGridSpacing = 10; // Restore more dramatic resolution
 
     // Initialize Doom
     if (window.doomAdapter) {
@@ -1167,11 +1160,22 @@ function loop() {
     // Lerp
     currentGridSpacing += (targetGridSpacing - currentGridSpacing) * 0.1;
     createGrid(); // Rebuild grid at new spacing
+
+    // FORCE IMMEDIATE UPDATE during transition to prevent flickering 
+    // (Wait for 30fps throttle would leave the new dots empty/blank for multiple frames)
+    if (currentGameMode === CONFIG.GAME_MODES.GAME || currentGameMode === CONFIG.GAME_MODES.DOOM) {
+      updateGame(elapsedTime);
+    }
   } else {
     // Snap only if close and not equal
     if (currentGridSpacing !== targetGridSpacing) {
       currentGridSpacing = targetGridSpacing;
       createGrid(); // Final snap
+
+      // Force update on final snap too
+      if (currentGameMode === CONFIG.GAME_MODES.GAME || currentGameMode === CONFIG.GAME_MODES.DOOM) {
+        updateGame(elapsedTime);
+      }
 
       // If we returned to standard spacing (NOT Doom), map text to restore logo
       if (targetGridSpacing === CONFIG.SPACING && currentStage !== CONFIG.STAGES.GAME) {
