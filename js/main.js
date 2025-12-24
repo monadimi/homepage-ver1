@@ -12,8 +12,9 @@ const CONFIG = {
     GAME: 3 // New Stage
   },
   GAME_MODES: {
-    TETRIS: 0,
-    LIFE: 1
+    TETRIS: 'tetris',
+    LIFE: 'life',
+    DOOM: 'doom'
   },
   DURATIONS: {
     INIT: 1800,      // ms
@@ -93,6 +94,11 @@ let mouse = { x: -9999, y: -9999 };
 let visualScale = 1; // Scaling factor for responsiveness
 let scrollY = 0; // Track scroll position
 let isDragging = false; // For mouse interaction
+
+// Resolution Scaling
+let currentGridSpacing = CONFIG.SPACING;
+let targetGridSpacing = CONFIG.SPACING;
+
 
 // --- Dot Class ---
 class Dot {
@@ -249,9 +255,6 @@ class Dot {
   draw(ctx) {
     if (this.opacity <= 0.01) return;
 
-    // Fixed Dark Theme for Hero
-    // ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; // Old
-
     ctx.globalAlpha = this.opacity;
 
     // Check if color is set (for Tetris)
@@ -340,10 +343,12 @@ function resize() {
   ctx.scale(dpr, dpr);
 }
 
-function createGrid() {
+function createGrid(spacingOverride = null) {
   dots = [];
   grid = [];
-  const spacing = CONFIG.SPACING * visualScale; // Scale spacing
+  // Use override if provided, else use current global spacing logic (which might be animating)
+  let baseSpacing = spacingOverride || currentGridSpacing;
+  const spacing = baseSpacing * visualScale;
 
   cols = Math.ceil(width / spacing);
   rows = Math.ceil(height / spacing);
@@ -355,6 +360,12 @@ function createGrid() {
       const y = r * spacing + spacing / 2;
 
       const dot = new Dot(x, y, c, r);
+      // If dense mode, reduce radius
+      if (baseSpacing < CONFIG.SPACING) {
+        dot.baseRadius = (CONFIG.BASE_RADIUS * visualScale) * (baseSpacing / CONFIG.SPACING);
+        dot.radius = dot.baseRadius;
+      }
+
       dots.push(dot);
       rowArr.push(dot);
     }
@@ -399,7 +410,10 @@ function mapText() {
 }
 
 // --- Tetris Global ---
-const tetris = new TetrisGame();
+let tetris = null;
+if (typeof TetrisGame !== 'undefined') {
+  tetris = new TetrisGame();
+}
 let lastDropTime = 0;
 const DROP_INTERVAL = 1000; // Auto drop every 1s
 
@@ -448,6 +462,28 @@ window.addEventListener('mouseup', () => isMouseDown = false);
 
 // Key Listener for Game Start & Control
 window.addEventListener('keydown', (e) => {
+  // Cheat Codes
+  if (e.code === konamiCode[konamiIndex]) {
+    konamiIndex++;
+    if (konamiIndex === konamiCode.length) {
+      triggerKonami();
+      konamiIndex = 0;
+    }
+  } else {
+    konamiIndex = 0;
+  }
+
+  // DOOM Code
+  if (e.code === doomCode[doomIndex]) {
+    doomIndex++;
+    if (doomIndex === doomCode.length) {
+      enterGameMode(CONFIG.GAME_MODES.DOOM);
+      doomIndex = 0;
+    }
+  } else {
+    doomIndex = 0;
+  }
+
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].indexOf(e.code) > -1) {
     if (currentStage === CONFIG.STAGES.GAME || window.scrollY < 100) {
       e.preventDefault();
@@ -469,38 +505,62 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
+  // Pass to Doom
+  if (currentGameMode === CONFIG.GAME_MODES.DOOM) {
+    if (window.doomAdapter) {
+      window.doomAdapter.handleKeyDown(e.code);
+    }
+    // Prevent default for common game keys
+    const doomKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space", "ControlLeft", "MetaLeft", "AltLeft", "AltRight", "KeyW", "KeyA", "KeyS", "KeyD", "Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7"];
+    if (doomKeys.includes(e.code)) {
+      e.preventDefault();
+    }
+    return;
+  }
+
   // Pass to Tetris
   if (!gamePlaying || currentGameMode !== CONFIG.GAME_MODES.TETRIS) return;
 
-  switch (e.code) {
-    case "ArrowLeft":
-    case "KeyA":
-      tetris.move(-1, 0);
-      break;
-    case "ArrowRight":
-    case "KeyD":
-      tetris.move(1, 0);
-      break;
-    case "ArrowUp":
-    case "KeyW":
-    case "KeyX":
-      tetris.rotatePiece();
-      break;
-    case "KeyZ":
-    case "ControlLeft":
-    case "ControlRight":
-      tetris.rotatePieceCCW();
-      break;
-    case "ArrowDown":
-    case "KeyS":
-      tetris.softDrop();
-      break;
-    case "Space":
-      tetris.hardDrop();
-      break;
+  if (tetris) {
+    switch (e.code) {
+      case "ArrowLeft":
+      case "KeyA":
+        tetris.move(-1, 0);
+        break;
+      case "ArrowRight":
+      case "KeyD":
+        tetris.move(1, 0);
+        break;
+      case "ArrowUp":
+      case "KeyW":
+      case "KeyX":
+        tetris.rotatePiece();
+        break;
+      case "KeyZ":
+      case "ControlLeft":
+      case "ControlRight":
+        tetris.rotatePieceCCW();
+        break;
+      case "ArrowDown":
+      case "KeyS":
+        tetris.softDrop();
+        break;
+      case "Space":
+        tetris.hardDrop();
+        break;
+    }
+    // Force immediate update of grid visual
+    tetris.updateGrid(dots, cols, rows);
   }
-  // Force immediate update of grid visual
-  tetris.updateGrid(dots, cols, rows);
+});
+
+// KeyUp Listener for Doom
+window.addEventListener('keyup', (e) => {
+  if (currentGameMode === CONFIG.GAME_MODES.DOOM) {
+    if (window.doomAdapter) {
+      window.doomAdapter.handleKeyUp(e.code);
+    }
+  }
 });
 
 
@@ -561,84 +621,172 @@ let currentGameMode = CONFIG.GAME_MODES.TETRIS;
 // but primarily LIFE is cellular automata.
 
 // --- Game Logic Switcher ---
+const konamiCode = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"];
+let konamiIndex = 0;
+const doomCode = ["KeyD", "KeyO", "KeyO", "KeyM"];
+let doomIndex = 0;
+
 function enterGameMode(mode) {
-  if (currentStage === CONFIG.STAGES.GAME && currentGameMode === mode) return;
-
-  // If switching modes while already in game?
-  // Let's allow switching.
-
-  currentStage = CONFIG.STAGES.GAME;
+  currentStage = CONFIG.STAGES.GAME; // Keep this from original
   currentGameMode = mode;
-  gamePlaying = true;
+  gamePlaying = true; // Default to true
+
+  // Hide Controls initially
+  btnPlay.style.display = 'none';
+  btnPause.style.display = 'none';
+  btnReset.style.display = 'none';
 
   const controls = document.getElementById('game-controls');
+  if (controls) controls.classList.add('active');
 
-  if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
-    if (controls) controls.classList.add('active');
-    // Clear for Tetris
+  const btnHelp = document.getElementById('btn-help');
+  if (btnHelp) btnHelp.style.display = (mode === CONFIG.GAME_MODES.DOOM) ? 'block' : 'none';
+
+  if (mode === CONFIG.GAME_MODES.TETRIS) {
+    if (tetris) {
+      targetGridSpacing = CONFIG.SPACING; // Standard
+      tetris.start(); // This sets tetris.isRunning = true
+      // Show only Reset for Tetris? or nothing?
+      btnReset.style.display = 'block';
+    }
+  } else if (mode === CONFIG.GAME_MODES.LIFE) {
+    // Only rebuild if resolution is different (e.g. from Doom)
+    if (currentGridSpacing !== CONFIG.SPACING) {
+      targetGridSpacing = CONFIG.SPACING;
+      currentGridSpacing = CONFIG.SPACING;
+      createGrid();
+    } else {
+      // Preserve current text dots by marking them 'alive' for GOL
+      dots.forEach(d => {
+        if (d.isText) {
+          d.alive = true;
+          d.opacity = 1;
+        }
+      });
+    }
+
+    gamePlaying = false; // Start paused
+    btnPlay.style.display = 'block';
+    btnReset.style.display = 'block';
+  } else if (mode === CONFIG.GAME_MODES.DOOM) {
+    targetGridSpacing = 14; // Increased from 10 to handle circular dot performance overhead
+
+    // Clear Grid
     dots.forEach(d => {
       d.alive = false;
       d.opacity = 0;
       d.color = null;
     });
-    if (!tetris.isRunning) tetris.start();
-    lastDropTime = Date.now() - startTime;
 
-  } else {
-    // LIFE MODE
-    if (controls) controls.classList.add('active'); // Show controls for Life too
-
-    // Start Paused so user can paint
-    gamePlaying = false;
-
-    // Update Buttons (Show Play, Hide Pause)
-    const btnPlay = document.getElementById('btn-play');
-    const btnPause = document.getElementById('btn-pause');
-    const scoreEl = document.getElementById('game-score');
-
-    if (btnPlay) btnPlay.style.display = 'block';
-    if (btnPause) btnPause.style.display = 'none';
-    if (scoreEl) scoreEl.style.opacity = '0'; // Hide score for Life
-
-    // Pause Tetris if running
-    tetris.pause();
+    // Initialize Doom
+    if (window.doomAdapter) {
+      window.doomAdapter.init();
+    }
   }
 }
 
 function exitGameMode() {
   currentStage = CONFIG.STAGES.IDLE;
   gamePlaying = false;
-  tetris.pause();
+  if (tetris) tetris.pause();
+
+  if (currentGameMode === CONFIG.GAME_MODES.DOOM && window.doomAdapter) {
+    window.doomAdapter.stop();
+  }
+
+  currentGameMode = null; // Clear mode
+  targetGridSpacing = CONFIG.SPACING;
 
   const controls = document.getElementById('game-controls');
   if (controls) controls.classList.remove('active');
 
   const scoreEl = document.getElementById('game-score');
-  if (scoreEl) scoreEl.style.opacity = '1'; // Restore opacity for next time (or rely on Tetris enter)
+  if (scoreEl) scoreEl.style.opacity = '1';
 
   const btnPlay = document.getElementById('btn-play');
   const btnPause = document.getElementById('btn-pause');
-
   if (btnPlay) btnPlay.style.display = 'block';
   if (btnPause) btnPause.style.display = 'none';
+
+  const btnHelp = document.getElementById('btn-help');
+  if (btnHelp) btnHelp.style.display = 'none';
+  const modal = document.getElementById('help-modal');
+  if (modal) modal.classList.remove('active');
+
+  // Restore logo only if spacing is already correct.
+  // Otherwise, let the loop's transition snap handle it to avoid "ghosting" across resolutions.
+  if (Math.abs(currentGridSpacing - targetGridSpacing) < 0.01) {
+    currentGridSpacing = targetGridSpacing; // Snap
+    createGrid(); // Clear game state and initialize new dots
+    mapText();
+  } else {
+    // Clear current dots state so they don't look like "text" or "game" during transition
+    dots.forEach(d => {
+      d.alive = false;
+      d.isText = false;
+      d.color = null;
+      d.opacity = 0;
+    });
+  }
 }
 
 function updateGame(elapsedTime, deltaTime) {
   if (!gamePlaying) return;
 
   if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
-    // Dynamic Drop Interval based on level
-    // Base 200ms (Very Fast!) -> decreases by 10ms per level -> min 50ms
-    const currentInterval = Math.max(50, 200 - (tetris.level * 10));
+    if (tetris) {
+      // Dynamic Drop Interval based on level
+      // Base 200ms (Very Fast!) -> decreases by 10ms per level -> min 50ms
+      const currentInterval = Math.max(50, 200 - (tetris.level * 10));
 
-    // Auto Drop
-    if (elapsedTime - lastDropTime > currentInterval) {
-      tetris.drop();
-      lastDropTime = elapsedTime;
+      // Auto Drop
+      if (elapsedTime - lastDropTime > currentInterval) {
+        tetris.drop();
+        lastDropTime = elapsedTime;
+      }
+      // Sync Visuals
+      tetris.updateGrid(dots, cols, rows);
     }
-    // Sync Visuals
-    tetris.updateGrid(dots, cols, rows);
+  } else if (currentGameMode === CONFIG.GAME_MODES.DOOM) {
+    if (window.doomAdapter) {
+      if (window.doomAdapter.error) {
+        // Render Error Text
+        if (tetris) {
+          const centerX = Math.floor(cols / 2);
+          const centerY = Math.floor(rows / 2);
+          tetris.drawText(dots, cols, rows, "MISSING", centerX - 14, centerY - 8, '#ff0000');
+          tetris.drawText(dots, cols, rows, "DOOM", centerX - 8, centerY, '#ff0000');
+          tetris.drawText(dots, cols, rows, "ZIP", centerX - 6, centerY + 8, '#ff0000');
+        }
+      } else {
 
+        // Throttle Doom Rendering to 30 FPS to save CPU/Input latency
+        const now = Date.now();
+        if (now - lastGameTick > 33) {
+          window.doomAdapter.update();
+          const frameData = window.doomAdapter.getFrame(cols, rows);
+          if (frameData) {
+            // Render Doom Frame to Dots
+            for (let y = 0; y < rows; y++) {
+              for (let x = 0; x < cols; x++) {
+                const i = (y * cols + x) * 4;
+                const r = frameData[i];
+                const g = frameData[i + 1];
+                const b = frameData[i + 2];
+
+                const dot = dots[y * cols + x];
+                if (dot) {
+                  dot.alive = true;
+                  dot.color = `rgb(${r},${g},${b})`;
+                  dot.opacity = 1;
+                }
+              }
+            }
+          }
+          lastGameTick = now;
+        }
+      }
+    }
   } else {
     // LIFE GAME LOGIC
     // Slow down update rate for Life? 
@@ -689,7 +837,7 @@ const btnClose = document.getElementById('btn-close');
 if (btnPlay) {
   btnPlay.addEventListener('click', () => {
     gamePlaying = true;
-    if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
+    if (currentGameMode === CONFIG.GAME_MODES.TETRIS && tetris) {
       tetris.resume();
     }
     btnPlay.style.display = 'none';
@@ -700,7 +848,7 @@ if (btnPlay) {
 if (btnPause) {
   btnPause.addEventListener('click', () => {
     gamePlaying = false;
-    if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
+    if (currentGameMode === CONFIG.GAME_MODES.TETRIS && tetris) {
       tetris.pause();
     }
     btnPlay.style.display = 'block';
@@ -710,7 +858,7 @@ if (btnPause) {
 
 if (btnReset) {
   btnReset.addEventListener('click', () => {
-    if (currentGameMode === CONFIG.GAME_MODES.TETRIS) {
+    if (currentGameMode === CONFIG.GAME_MODES.TETRIS && tetris) {
       tetris.start();
       gamePlaying = true;
       btnPlay.style.display = 'none';
@@ -731,6 +879,31 @@ if (btnReset) {
 
 if (btnClose) {
   btnClose.addEventListener('click', exitGameMode);
+}
+
+const btnHelp = document.getElementById('btn-help');
+const modal = document.getElementById('help-modal');
+const modalClose = document.querySelector('.modal-close');
+
+if (btnHelp && modal) {
+  btnHelp.addEventListener('click', () => {
+    modal.classList.add('active');
+  });
+}
+
+if (modal && modalClose) {
+  modalClose.addEventListener('click', () => {
+    modal.classList.remove('active');
+  });
+}
+
+// Close modal on click outside
+if (modal) {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('active');
+    }
+  });
 }
 
 // --- Theme Logic ---
@@ -988,6 +1161,25 @@ function loop() {
   if (!ctx) return;
   const now = Date.now();
   const elapsedTime = now - startTime;
+
+  // Resolution Transition Logic
+  if (Math.abs(targetGridSpacing - currentGridSpacing) > 0.01) {
+    // Lerp
+    currentGridSpacing += (targetGridSpacing - currentGridSpacing) * 0.1;
+    createGrid(); // Rebuild grid at new spacing
+  } else {
+    // Snap only if close and not equal
+    if (currentGridSpacing !== targetGridSpacing) {
+      currentGridSpacing = targetGridSpacing;
+      createGrid(); // Final snap
+
+      // If we returned to standard spacing (NOT Doom), map text to restore logo
+      if (targetGridSpacing === CONFIG.SPACING && currentStage !== CONFIG.STAGES.GAME) {
+        mapText();
+      }
+    }
+  }
+
 
   // Stage Management
   if (currentStage === CONFIG.STAGES.INIT) {
