@@ -114,6 +114,12 @@ let currentGridSpacing = CONFIG.SPACING;
 let targetGridSpacing = CONFIG.SPACING;
 let brushSizeMultiplier = 1.0; // Brush Size State
 
+// Lyrics State
+let lyricsData = null; // Array of {time, text}
+let currentLyricIndex = -1;
+let isFetchingLyrics = false;
+
+
 
 
 // --- Dot Class ---
@@ -482,6 +488,89 @@ window.addEventListener('mousemove', e => {
   }
 });
 
+// --- Lyrics Logic ---
+const RICK_LYRICS = `[00:19.67] We're no strangers to love
+[00:23.56] You know the rules and so do I (do I)
+[00:27.92] A full commitment's what I'm thinking of
+[00:32.11] You wouldn't get this from any other guy
+[00:36.05] I just wanna tell you how I'm feeling
+[00:41.34] Gotta make you understand
+[00:43.18] Never gonna give you up
+[00:45.25] Never gonna let you down
+[04:47.29] Never gonna run around and desert you
+[00:51.52] Never gonna make you cry
+[00:53.78] Never gonna say goodbye
+[00:55.73] Never gonna tell a lie and hurt you
+[01:00.98] We've known each other for so long
+[01:04.96] Your heart's been aching, but you're too shy to say it (say it)
+[01:09.23] Inside, we both know what's been going on (going on)
+[01:13.67] We know the game and we're gonna play it
+[01:17.57] And if you ask me how I'm feeling
+[01:22.45] Don't tell me you're too blind to see
+[01:25.46] Never gonna give you up
+[01:27.56] Never gonna let you down
+[01:29.75] Never gonna run around and desert you
+[01:33.96] Never gonna make you cry
+[01:36.22] Never gonna say goodbye
+[01:38.29] Never gonna tell a lie and hurt you
+[01:42.33] Never gonna give you up
+[01:44.45] Never gonna let you down
+[01:46.64] Never gonna run around and desert you
+[01:50.98] Never gonna make you cry
+[01:52.83] Never gonna say goodbye
+[01:55.13] Never gonna tell a lie and hurt you
+[01:59.85] (Ooh, give you up)
+[02:04.01] (Ooh, give you up)
+[02:08.58] (Ooh) Never gonna give, never gonna give (give you up)
+[02:12.58] (Ooh) Never gonna give, never gonna give (give you up)
+[02:17.02] We've known each other for so long
+[02:21.23] Your heart's been aching, but you're too shy to say it (to say it)
+[02:25.52] Inside, we both know what's been going on (going on)
+[02:29.81] We know the game and we're gonna play it
+[02:33.90] I just wanna tell you how I'm feeling
+[02:39.11] Gotta make you understand
+[02:41.73] Never gonna give you up
+[02:43.97] Never gonna let you down
+[02:45.95] Never gonna run around and desert you
+[02:50.22] Never gonna make you cry
+[02:52.22] Never gonna say goodbye
+[02:54.38] Never gonna tell a lie and hurt you
+[02:58.59] Never gonna give you up
+[03:00.70] Never gonna let you down
+[03:02.83] Never gonna run around and desert you
+[03:07.26] Never gonna make you cry
+[03:09.26] Never gonna say goodbye
+[03:11.39] Never gonna tell a lie and hurt you
+[03:15.52] Never gonna give you up
+[03:17.68] Never gonna let you down
+[03:19.88] Never gonna run around and desert you
+[03:24.06] Never gonna make you cry
+[03:26.23] Never gonna say goodbye
+[03:28.34] Never gonna tell a lie and hurt you`;
+
+function parseLyrics(lrcString) {
+  const lines = lrcString.split('\n');
+  const parsed = [];
+  const timeReg = /\[(\d{2}):(\d{2})\.(\d{2})\]/;
+
+  lines.forEach(line => {
+    const match = timeReg.exec(line);
+    if (match) {
+      const min = parseInt(match[1]);
+      const sec = parseInt(match[2]);
+      const cs = parseInt(match[3]);
+      const time = min * 60 + sec + cs / 100;
+      const text = line.replace(timeReg, '').trim();
+      if (text) {
+        parsed.push({ time, text });
+      }
+    }
+  });
+  lyricsData = parsed;
+  // console.log("Parsed Lyrics:", lyricsData);
+}
+
+
 let isMouseDown = false;
 window.addEventListener('mousedown', () => isMouseDown = true);
 window.addEventListener('mouseup', () => isMouseDown = false);
@@ -744,6 +833,18 @@ function enterGameMode(mode) {
         // Fallback: maybe show a "Click to Start" overlay or just rely on the next click?
         // Since user is dragging, interaction is continuous, so it might just work on next frame or logic tick.
       });
+
+      // Setup Lyrics UI
+      const lyricEl = document.getElementById('lyrics-container');
+      if (lyricEl) lyricEl.classList.add('active');
+      const header = document.getElementById('main-header');
+      if (header) header.classList.add('lyrics-mode');
+
+      // Parse Hardcoded Lyrics immediately
+      if (!lyricsData) {
+        parseLyrics(RICK_LYRICS);
+      }
+      currentLyricIndex = -1;
     }
   }
 }
@@ -766,6 +867,10 @@ function exitGameMode() {
   if (currentGameMode === CONFIG.GAME_MODES.RICK) {
     const video = document.getElementById('rick-video');
     if (video) video.pause();
+    const lyricEl = document.getElementById('lyrics-container');
+    if (lyricEl) lyricEl.classList.remove('active');
+    const header = document.getElementById('main-header');
+    if (header) header.classList.remove('lyrics-mode');
   }
 
   currentGameMode = null; // Clear mode
@@ -895,6 +1000,32 @@ function updateGame(elapsedTime, deltaTime) {
   } else if (currentGameMode === CONFIG.GAME_MODES.RICK) {
     const video = document.getElementById('rick-video');
     if (video && !video.paused) {
+      // --- Lyrics Update ---
+      if (lyricsData) {
+        const LYRIC_OFFSET = 0.5; // Seconds to advance lyrics ("make them faster")
+        const t = video.currentTime + LYRIC_OFFSET;
+        // Simple search (can be optimized but array is small)
+        // We want the last lyric where time <= t
+        let activeIdx = -1;
+        for (let i = 0; i < lyricsData.length; i++) {
+          if (lyricsData[i].time <= t) {
+            activeIdx = i;
+          } else {
+            break;
+          }
+        }
+
+        if (activeIdx !== currentLyricIndex) {
+          currentLyricIndex = activeIdx;
+          const lyricEl = document.getElementById('lyrics-container');
+          if (lyricEl && activeIdx > -1) {
+            lyricEl.innerText = lyricsData[activeIdx].text;
+          } else if (lyricEl) {
+            lyricEl.innerText = "";
+          }
+        }
+      }
+
       // Same rendering logic as APPLE
       const sampleCanvas = document.createElement('canvas');
       const sampleCtx = sampleCanvas.getContext('2d');
