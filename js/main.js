@@ -578,11 +578,12 @@ window.addEventListener('mouseup', () => isMouseDown = false);
 // Key Listener for Game Start & Control
 window.addEventListener('keydown', (e) => {
   // Brush Size Control (Global)
-  if (e.code === "BracketLeft") {
+  // Check both code and key for better browser/layout compatibility
+  if (e.code === "BracketLeft" || e.key === "[") {
     brushSizeMultiplier = Math.max(0.5, brushSizeMultiplier - 2.0); // Faster decrease
     console.log("Brush Size:", brushSizeMultiplier);
   }
-  if (e.code === "BracketRight") {
+  if (e.code === "BracketRight" || e.key === "]") {
     brushSizeMultiplier = Math.min(100.0, brushSizeMultiplier + 2.0); // Faster increase, Max 100
     console.log("Brush Size:", brushSizeMultiplier);
   }
