@@ -497,7 +497,7 @@ const RICK_LYRICS = `[00:19.67] We're no strangers to love
 [00:41.34] Gotta make you understand
 [00:43.18] Never gonna give you up
 [00:45.25] Never gonna let you down
-[04:47.29] Never gonna run around and desert you
+[00:47.29] Never gonna run around and desert you
 [00:51.52] Never gonna make you cry
 [00:53.78] Never gonna say goodbye
 [00:55.73] Never gonna tell a lie and hurt you
