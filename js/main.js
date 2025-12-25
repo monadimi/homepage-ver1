@@ -28,6 +28,19 @@ const THEMES = [
   { name: 'light', bg: '#ffffff', dot: '#000000', shape: 'circle', missionBg: '#ffffff', missionText: '#000000', headerBg: 'rgba(255, 255, 255, 0.7)' },
   { name: 'lcd', bg: '#bad24c', dot: '#94ab26', shape: 'square', missionBg: '#bad24c', missionText: '#3b421b', headerBg: 'rgba(186, 210, 76, 0.8)' }
 ];
+// Config Extension for Game Modes
+if (!CONFIG.GAME_MODES) {
+  CONFIG.GAME_MODES = {
+    TETRIS: 'tetris',
+    LIFE: 'life',
+    DOOM: 'doom',
+    APPLE: 'apple',
+    RICK: 'rick'
+  };
+} else {
+  CONFIG.GAME_MODES.RICK = 'rick';
+}
+
 let currentThemeIndex = 0;
 
 // ... (Noise class same) ...
@@ -99,6 +112,8 @@ let isDragging = false; // For mouse interaction
 // Resolution Scaling
 let currentGridSpacing = CONFIG.SPACING;
 let targetGridSpacing = CONFIG.SPACING;
+let brushSizeMultiplier = 1.0; // Brush Size State
+
 
 
 // --- Dot Class ---
@@ -445,15 +460,25 @@ window.addEventListener('mousemove', e => {
 
     // Paint logic
     const spacing = CONFIG.SPACING * visualScale;
+    const paintRadius = spacing * brushSizeMultiplier; // Apply Brush Size
+    let aliveCount = 0;
     dots.forEach(dot => {
       const dx = dot.x - mouse.x;
       const dy = dot.y - mouse.y;
-      if (dx * dx + dy * dy < (spacing * spacing)) {
+      if (dx * dx + dy * dy < (paintRadius * paintRadius)) { // Use new radius
         dot.alive = true;
         dot.opacity = 1;
         // dot.color is null for LIFE
       }
+      if (dot.alive) aliveCount++;
     });
+
+    // Check Trigger Condition: > 98% alive
+    if (aliveCount / dots.length > 0.98) {
+      if (currentGameMode !== CONFIG.GAME_MODES.RICK) {
+        enterGameMode(CONFIG.GAME_MODES.RICK);
+      }
+    }
   }
 });
 
@@ -463,6 +488,16 @@ window.addEventListener('mouseup', () => isMouseDown = false);
 
 // Key Listener for Game Start & Control
 window.addEventListener('keydown', (e) => {
+  // Brush Size Control (Global)
+  if (e.code === "BracketLeft") {
+    brushSizeMultiplier = Math.max(0.5, brushSizeMultiplier - 2.0); // Faster decrease
+    console.log("Brush Size:", brushSizeMultiplier);
+  }
+  if (e.code === "BracketRight") {
+    brushSizeMultiplier = Math.min(100.0, brushSizeMultiplier + 2.0); // Faster increase, Max 100
+    console.log("Brush Size:", brushSizeMultiplier);
+  }
+
   // Cheat Codes
   if (e.code === konamiCode[konamiIndex]) {
     konamiIndex++;
@@ -564,6 +599,7 @@ window.addEventListener('keydown', (e) => {
     // Force immediate update of grid visual
     tetris.updateGrid(dots, cols, rows);
   }
+
 });
 
 // KeyUp Listener for Doom
@@ -697,8 +733,21 @@ function enterGameMode(mode) {
       video.currentTime = 0;
       video.play();
     }
+  } else if (mode === CONFIG.GAME_MODES.RICK) {
+    targetGridSpacing = 10; // High resolution for video
+    const video = document.getElementById('rick-video');
+    if (video) {
+      video.currentTime = 0;
+      video.volume = 1.0;
+      video.play().catch(e => {
+        console.log("Autoplay blocked, waiting for interaction", e);
+        // Fallback: maybe show a "Click to Start" overlay or just rely on the next click?
+        // Since user is dragging, interaction is continuous, so it might just work on next frame or logic tick.
+      });
+    }
   }
 }
+
 
 function exitGameMode() {
   currentStage = CONFIG.STAGES.IDLE;
@@ -711,6 +760,11 @@ function exitGameMode() {
 
   if (currentGameMode === CONFIG.GAME_MODES.APPLE) {
     const video = document.getElementById('bad-apple-video');
+    if (video) video.pause();
+  }
+
+  if (currentGameMode === CONFIG.GAME_MODES.RICK) {
+    const video = document.getElementById('rick-video');
     if (video) video.pause();
   }
 
@@ -834,6 +888,41 @@ function updateGame(elapsedTime, deltaTime) {
             dot.alive = brightness > 128; // Threshold
             dot.opacity = dot.alive ? 1 : 0;
             dot.color = dot.alive ? '#ffffff' : null;
+          }
+        }
+      }
+    }
+  } else if (currentGameMode === CONFIG.GAME_MODES.RICK) {
+    const video = document.getElementById('rick-video');
+    if (video && !video.paused) {
+      // Same rendering logic as APPLE
+      const sampleCanvas = document.createElement('canvas');
+      const sampleCtx = sampleCanvas.getContext('2d');
+      sampleCanvas.width = cols;
+      sampleCanvas.height = rows;
+
+      sampleCtx.drawImage(video, 0, 0, cols, rows);
+      const pixelData = sampleCtx.getImageData(0, 0, cols, rows).data;
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const i = (y * cols + x) * 4;
+          const dot = dots[y * cols + x];
+          if (dot) {
+            // Color Video Support
+            const r = pixelData[i];
+            const g = pixelData[i + 1];
+            const b = pixelData[i + 2];
+
+            const brightness = (r + g + b) / 3;
+
+            dot.alive = brightness > 30;
+            if (dot.alive) {
+              dot.color = `rgb(${r},${g},${b})`;
+              dot.opacity = 1;
+            } else {
+              dot.opacity = 0;
+            }
           }
         }
       }
