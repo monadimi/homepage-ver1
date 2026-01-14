@@ -4,7 +4,7 @@
     "description": "혐오를 알아야 혐오를 무너뜨린다. 장관상 수상작입니다.",
     "image": "https://img.notionusercontent.com/s3/prod-files-secure%2F5983909a-9e8c-810c-ae64-00033e38e3fa%2F0aa86d36-4973-4dc9-9e59-8d83ed4115c4%2Fimage.png/size/w=270?exp=1765803091&sig=t-aOyQhqSpjlI7z8tjA8AZ8Vcgpt0Zpwv3QYAKrCAbE&id=2703909a-9e8c-80b4-80f4-f14f3a7109b5&table=block&userId=04a2a4d1-7728-4d63-adf7-5f6f2cf6c96e",
     "icon": "https://placehold.co/100x100/7da0ff/ffffff?text=H",
-    "link": "https://b1nyl.github.io/important/",
+    "link": "#",
     "tags": ["AI", "Minister", "Jirinda"]
   },
   {
@@ -16,11 +16,19 @@
     "tags": ["AI", "Muumuu", "Gachuk"]
   },
   {
+    "title": "부스터캠프",
+    "description": "부트캠프 헬퍼 AI 서비스.",
+    "image": "https://img.notionusercontent.com/s3/prod-files-secure%2F5983909a-9e8c-810c-ae64-00033e38e3fa%2F8c6435eb-ab33-47de-8d40-28132dd4f7f2%2Fimage.png/size/w=210?exp=1765802923&sig=MWw764sAgH8MiZUU2mFbVXoxgMu753qUBznGM3zbSwc&id=2703909a-9e8c-80c1-afb0-c0f8be2c16f3&table=block&userId=04a2a4d1-7728-4d63-adf7-5f6f2cf6c96e",
+    "icon": "https://placehold.co/100x100/7dff85/ffffff?text=부",
+    "link": "#",
+    "tags": ["AI", "Bootcamp", "Amazing"]
+  },
+  {
     "title": "프롬피",
     "description": "그림을 통한 프롬프트 엔지니어링 학습 도우미",
     "image": "https://img.notionusercontent.com/s3/prod-files-secure%2F5983909a-9e8c-810c-ae64-00033e38e3fa%2F8c6435eb-ab33-47de-8d40-28132dd4f7f2%2Fimage.png/size/w=210?exp=1765802923&sig=MWw764sAgH8MiZUU2mFbVXoxgMu753qUBznGM3zbSwc&id=2703909a-9e8c-80c1-afb0-c0f8be2c16f3&table=block&userId=04a2a4d1-7728-4d63-adf7-5f6f2cf6c96e",
     "icon": "https://placehold.co/100x100/7dff85/ffffff?text=프",
-    "link": "prompe.vercel.app",
+    "link": "https://prompe.vercel.app",
     "tags": ["AI", "promtpt", "Drawing"]
   },
 ]
